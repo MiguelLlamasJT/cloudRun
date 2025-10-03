@@ -1,24 +1,51 @@
 from fastapi import FastAPI, Request
+import os
+import requests
 
 app = FastAPI()
+
+SLACK_BOT_TOKEN = os.environ.get("SLACK_BOT_TOKEN")
 
 @app.post("/slack/events")
 async def slack_events(req: Request):
     body = await req.json()
 
+    # Verificación inicial de Slack
     if body.get("type") == "url_verification":
         return body["challenge"]
 
     event = body.get("event", {})
 
-    if event.get("type") == "message":
-        if event.get("thread_ts"):
-            print("Thread:", event)
-        else:
-            print("Message:", event)
+    # Solo manejar mensajes de usuarios (ignora mensajes de bots)
+    if event.get("type") == "message" and not event.get("bot_id"):
+        channel = event.get("channel")
+        text = event.get("text")
+        thread_ts = event.get("thread_ts")
+        ts = event.get("ts")
 
-    elif event.get("type") == "reaction_added":
-        print("Reaction:", event)
+        if thread_ts:
+            # Mensaje en un thread → responder en el thread
+            send_message(channel, f"{text} devuelto desde API", thread_ts=thread_ts)
+        else:
+            # Mensaje nuevo → responder debajo de ese mensaje (thread nuevo)
+            send_message(channel, f"{text} devuelto desde API", thread_ts=ts)
 
     return {"ok": True}
 
+
+def send_message(channel, text, thread_ts=None):
+    payload = {
+        "channel": channel,
+        "text": text,
+    }
+    if thread_ts:
+        payload["thread_ts"] = thread_ts
+
+    response = requests.post(
+        "https://slack.com/api/chat.postMessage",
+        headers={"Authorization": f"Bearer {SLACK_BOT_TOKEN}"},
+        data=payload
+    )
+
+    # Para depuración
+    print("Slack API response:", response.json())
