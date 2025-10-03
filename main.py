@@ -1,11 +1,11 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.responses import PlainTextResponse
 
 app = FastAPI()
 
-@app.get("/")
-def root():
-    return {"message": "API is alive!"}
-
-@app.post("/echo")
-def echo(data: dict):
-    return {"you_sent": data}
+@app.post("/slack/events")
+async def slack_events(req: Request):
+    body = await req.json()
+    if body.get("type") == "url_verification":
+        return PlainTextResponse(body["challenge"])
+    return {"ok": True}
