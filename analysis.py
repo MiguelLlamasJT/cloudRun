@@ -113,7 +113,7 @@ def build_query(filters_json: str) -> str:
 
     sql = f"""
     SELECT country, month, {select_metrics}
-    FROM `tu_proyecto.mock_dataset.fact_table`
+    FROM `jt-prd-financial-pa.mock_dataset.anonymized`
     WHERE {where_clause}
     GROUP BY country, month
     ORDER BY country, month
