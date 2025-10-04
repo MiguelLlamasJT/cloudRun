@@ -1,7 +1,18 @@
-fastapi
-uvicorn[standard]
+# API
+fastapi==0.115.2
+uvicorn[standard]==0.30.6
 requests
-google-cloud-bigquery
-pandas
-anthropic
-openai
+
+# Google Cloud BigQuery
+google-cloud-bigquery==3.25.0
+pandas==2.2.3
+pyarrow==17.0.0
+db-dtypes==1.2.0
+
+# LLM APIs
+anthropic==0.34.2
+openai==1.43.0
+
+# Utils
+python-dotenv
+
