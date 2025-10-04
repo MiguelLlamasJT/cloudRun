@@ -1,6 +1,7 @@
 from fastapi import FastAPI, Request
 import os
 import requests
+from analysis import process_question 
 
 app = FastAPI()
 
