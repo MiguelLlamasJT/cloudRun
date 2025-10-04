@@ -17,7 +17,15 @@ def get_current_and_last_monday():
 def resolve_dataweek(filters):
     current, previous = get_current_and_last_monday()
     resolved = []
-    for val in filters.get("data_week", [])
+    for val in filters.get("data_week", []):
+        if val == "CURRENT":
+            resolved.append(str(current))
+        elif val == "PREVIOUS":
+            resolved.append(str(current))
+        else:
+            resolved.append(val)
+    filters["data_week"] = resolved
+    return filters
 
 def get_filters_from_claude(user_question: str):
     prompt = f"""
