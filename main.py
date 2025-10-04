@@ -25,10 +25,12 @@ async def slack_events(req: Request):
 
         if thread_ts:
             # Mensaje en un thread → responder en el thread
-            send_message(channel, f"{text} devuelto desde API", thread_ts=thread_ts)
+            result_text = process_question(text)
+            send_message(channel, result_text, thread_ts=thread_ts)
         else:
             # Mensaje nuevo → responder debajo de ese mensaje (thread nuevo)
-            send_message(channel, f"{text} devuelto desde API", thread_ts=ts)
+            result_text = process_question(text)
+            send_message(channel, result_text, thread_ts=ts)
 
     return {"ok": True}
 
