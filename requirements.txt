@@ -5,3 +5,4 @@ google-cloud-bigquery
 pandas
 anthropic
 openai
+db-dtypes
