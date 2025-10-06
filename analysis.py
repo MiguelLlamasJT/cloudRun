@@ -125,7 +125,7 @@ def build_query(filters_json: str) -> str:
 
     sql = f"""
     SELECT sfdc_name_l3, country, month, {select_metrics}
-    FROM `jt-prd-financial-pa.random_data.real_data
+    FROM `jt-prd-financial-pa.random_data.real_data`
     WHERE {where_clause}
     ORDER BY country, month;
     """
