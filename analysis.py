@@ -61,7 +61,9 @@ representing SQL filters for a table in BigQuery.
    - If the user does not mention any week → use the most recent data_week.
    - If the user says "last week" → filter by the previous data_week.
    - If the user says "WoW variations" → include both the current and previous data_week.
-5. Comparison field:
+5. About **month**:
+   - If the user does not mention any year -> use the current year.
+6. Comparison field:
    - If "YoY" mentioned → "YoY"
    - If "MoM" or "month over month" → "MoM"
    - If "WoW" or "week over week" → "WoW"
