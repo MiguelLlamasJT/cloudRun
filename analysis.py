@@ -110,7 +110,7 @@ def build_query(filters_json: str) -> str:
     where_clauses = []
     for col, vals in filters.get("filters", {}).items():
         if not vals:
-            continue:
+            continue
         vals_sql = ", ".join([f"'{v}'" for v in vals])
         where_clauses.append(f"{col} IN ({vals_sql})")
     where_clause = " AND ".join(where_clauses) if where_clauses else "1=1"
