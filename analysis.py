@@ -124,7 +124,7 @@ def build_query(filters_json: str) -> str:
     where_clause = " AND ".join(where_clauses) if where_clauses else "1=1"
 
     sql = f"""
-    SELECT country, month, {select_metrics}
+    SELECT sfdc_name_l3, country, month, {select_metrics}
     FROM `jt-prd-financial-pa.random_data.anonymized`
     WHERE {where_clause}
     GROUP BY country, month
@@ -147,6 +147,7 @@ def process_question(user_question: str) -> str:
         sql = build_query(filters_json)
         print(f"SQL generated:\n{sql}")
         df = run_query(sql)
+        print("Shape:", df.shape)
 
         # Devolver algo legible para Slack (ejemplo: primeras filas)
         return f"Filtros: {filters_json}\n\nResultados:\n{df.head(5).to_string(index=False)}"
