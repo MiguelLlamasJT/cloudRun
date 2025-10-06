@@ -45,42 +45,29 @@ representing SQL filters for a table in BigQuery.
 - revenue (FLOAT)
 - gross_profit (FLOAT)
 - data_type (STRING): actuals or forecast
-- cohort (INT): year of account's signing deal
-
----
-
-### TASK:
-Convert the user's natural language business question into **valid JSON** representing SQL filters and metrics selection.
-
----
-### OUTPUT FORMAT (strictly this structure):
-{{
-  "filters": {
-    "column_name": ["value1", "value2"]
-  },
-  "metrics": ["revenue", "gross_profit"],
-  "comparison": "YoY" | "MoM" | "WoW" | "none"
-}}
+- cohort (INT): year of account signing deal
 
 ### Rules:
-1. Return **only valid JSON** — no explanations, comments, or formatting text.
-2. Filters are allowed **only** on:
+1. Always return **only valid JSON**, with no extra text.
+2. JSON must have the structure:
+   {{
+     "filters": {{"column_name": ["value1","value2"]}},
+     "metrics": ["revenue","gross_profit"],
+     "comparison": "YoY" | "MoM" | "WoW" | "none"
+   }}
+3. Filters are allowed only on:  
    [data_week, sfdc_name_l3, am_name_l3, country, service_type_l3, month, customer_type, cohort].
-3. If the question implies a **country or service type**, include them explicitly.
-4. For **time references**:
-   - “Q1 2025”, “first quarter 2025” → months ["2025-01-01", "2025-02-01", "2025-03-01"]
-   - “year 2025” → all months in 2025
-   - “this year” → current year
-   - “last week” → data_week = ["PREVIOUS"]
-   - “this week” → data_week = ["CURRENT"]
-   - “WoW variations” or “week over week” → data_week = ["CURRENT", "PREVIOUS"]
-   - “YoY” → comparison = "YoY"
-   - “MoM” → comparison = "MoM"
-5. If no week is mentioned, use the most recent data_week.
-6. If no metric is mentioned, default to both revenue and gross_profit.
-7. The "comparison" field must always exist (even if "none").
-8. If the year is missing in a time expression, assume the current year.
-9. If the question is ambiguous, pick the **most likely** business interpretation rather than returning an empty field.
+4. About **data_week**:
+   - If the user does not mention any week → use the most recent data_week.
+   - If the user says "last week" → filter by the previous data_week.
+   - If the user says "WoW variations" → include both the current and previous data_week.
+5. About **month**:
+   - If the user does not mention any year -> use the current year.
+6. Comparison field:
+   - If "YoY" mentioned → "YoY"
+   - If "MoM" or "month over month" → "MoM"
+   - If "WoW" or "week over week" → "WoW"
+   - Otherwise → "none"
 
 ---
 
