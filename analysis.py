@@ -147,7 +147,7 @@ def process_question(user_question: str) -> str:
         print(f"SQL generated:\n{sql}")
         df = run_query(sql)
         print("Shape:", df.shape)
-        code_exec_result = run_code_execution(user_question, df, model="claude-3-5-haiku-latest") 
+        code_exec_result = run_code_execution(user_question, df) 
         # Devolver algo legible para Slack (ejemplo: primeras filas)
         return (
             f"Filtros: {filters_json}\n\n"
