@@ -11,14 +11,13 @@ SLACK_BOT_TOKEN = os.environ.get("SLACK_BOT_TOKEN")
 async def slack_events(req: Request):
     body = await req.json()
 
-    # Verificación inicial de Slack
     if body.get("type") == "url_verification":
         return body["challenge"]
 
     event = body.get("event", {})
 
-    # Solo manejar mensajes de usuarios (ignora mensajes de bots)
     if event.get("type") == "message" and not event.get("bot_id"):
+        print(event)
         channel = event.get("channel")
         text = event.get("text")
         thread_ts = event.get("thread_ts")
@@ -29,7 +28,6 @@ async def slack_events(req: Request):
             result_text = process_question(text)
             send_message(channel, result_text, thread_ts=thread_ts)
         else:
-            # Mensaje nuevo → responder debajo de ese mensaje (thread nuevo)
             result_text = process_question(text)
             send_message(channel, result_text, thread_ts=ts)
 
