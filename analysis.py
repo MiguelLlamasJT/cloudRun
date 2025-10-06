@@ -53,17 +53,16 @@ representing SQL filters for a table in BigQuery.
 Convert the user's natural language business question into **valid JSON** representing SQL filters and metrics selection.
 
 ---
-
 ### OUTPUT FORMAT (strictly this structure):
-{
+{{
   "filters": {
     "column_name": ["value1", "value2"]
   },
   "metrics": ["revenue", "gross_profit"],
   "comparison": "YoY" | "MoM" | "WoW" | "none"
-}
+}}
 
-### RULES:
+### Rules:
 1. Return **only valid JSON** — no explanations, comments, or formatting text.
 2. Filters are allowed **only** on:
    [data_week, sfdc_name_l3, am_name_l3, country, service_type_l3, month, customer_type, cohort].
@@ -82,6 +81,7 @@ Convert the user's natural language business question into **valid JSON** repres
 7. The "comparison" field must always exist (even if "none").
 8. If the year is missing in a time expression, assume the current year.
 9. If the question is ambiguous, pick the **most likely** business interpretation rather than returning an empty field.
+
 ---
 
 ### Example (complex):
