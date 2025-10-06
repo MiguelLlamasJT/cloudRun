@@ -2,6 +2,8 @@ import os, json
 from google.cloud import bigquery
 import anthropic
 import datetime
+import pandas as pd
+
 
 bq_client = bigquery.Client()
 claude = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
@@ -93,15 +95,19 @@ Respond with JSON only.
         max_tokens=1000,
         messages=[{"role": "user", "content": prompt}]
     )
-    print(response.content)
+    print(response.content[0].text)
     return response.content[0].text
 
 
 
 def build_query(filters_json: str) -> str:
-    filters = json.loads(filters_json)
-    filters["filters"] = resolve_dataweek(filters.get("filters", {}))
-    metrics = filters.get("metrics", [])
+    try:
+        filters = json.loads(filters_json)
+    except json.JSONDecodeError as e:
+        print("❌ Claude devolvió JSON inválido:", filters_json)
+        raise e
+    filters["filters"] = resolve_dataweek(filters.get("filters") or {})
+    metrics = filters.get("metrics") or ["revenue", "gross_profit"]
 
     # SELECT dinámico
     select_metrics = ", ".join([f"SUM({m}) as {m}" for m in metrics]) if metrics else "*"
@@ -137,7 +143,7 @@ def process_question(user_question: str) -> str:
     try:
         filters_json = get_filters_from_claude(user_question)
         sql = build_query(filters_json)
-        print(f"SQL generated: \n: {sql}")
+        print(f"SQL generated:\n{sql}")
         df = run_query(sql)
 
         # Devolver algo legible para Slack (ejemplo: primeras filas)
