@@ -3,7 +3,7 @@ from google.cloud import bigquery
 import anthropic
 import datetime
 import pandas as pd
-
+from code_execution import run_code_execution
 
 bq_client = bigquery.Client()
 claude = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
@@ -147,9 +147,13 @@ def process_question(user_question: str) -> str:
         print(f"SQL generated:\n{sql}")
         df = run_query(sql)
         print("Shape:", df.shape)
-
+        code_exec_result = run_code_execution(user_question, df, model="claude-3-5-haiku-latest") 
         # Devolver algo legible para Slack (ejemplo: primeras filas)
-        return f"Filtros: {filters_json}\n\nResultados:\n{df.head(5).to_string(index=False)}"
+        return (
+            f"Filtros: {filters_json}\n\n"
+            f"Resultados (primeras filas):\n{df.head(5).to_string(index=False)}\n\n"
+            f"Code Execution:\n{code_exec_result}"
+        )
 
     except Exception as e:
         return f"Error procesando la pregunta: {e}"
