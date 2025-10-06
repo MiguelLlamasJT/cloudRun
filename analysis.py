@@ -38,7 +38,7 @@ representing SQL filters for a table in BigQuery.
 - data_week (DATE): snapshot week (always a Monday)
 - sfdc_name_l3 (STRING): account name
 - am_name_l3 (STRING): account manager name
-- country (STRING): country code (e.g. ES, FR, BE, DE)
+- country (STRING): country code (e.g. ES, FR, BE, DE, CO, PT, NO, SE, UK, US)
 - service_type_l3 (STRING): service type (e.g. Staffing, Outsourcing)
 - month (DATE): first day of the month
 - customer_type (STRING): EB, NE, Pipeline NB, Pipeline EB
@@ -125,7 +125,7 @@ def build_query(filters_json: str) -> str:
 
     sql = f"""
     SELECT sfdc_name_l3, country, month, {select_metrics}
-    FROM `jt-prd-financial-pa.random_data.anonymized`
+    FROM `jt-prd-financial-pa.random_data.real_data
     WHERE {where_clause}
     ORDER BY country, month;
     """
