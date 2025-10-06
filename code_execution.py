@@ -31,9 +31,8 @@ def run_code_execution(prompt: str, df: pd.DataFrame, model: str = "claude-sonne
             tools=[{"type": "code_execution_20250825", "name": "code_execution"}]
         )
         print(response)
-        output_text = "".join(
-            item.text for item in response.content if getattr(item, "type", None) == "text"
-        )
+        text_blocks = [item.text for item in response.content if getattr(item, "type", None) == "text"]
+        output_text = text_blocks[-1] if text_blocks else ""
         return output_text.strip()
     finally:
         try:
