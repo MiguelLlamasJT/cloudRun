@@ -112,7 +112,7 @@ def build_query(filters_json: str) -> str:
     metrics = filters.get("metrics") or ["revenue", "gross_profit"]
 
     # SELECT dinámico
-    select_metrics = ", ".join([f"SUM({m}) as {m}" for m in metrics]) if metrics else "*"
+    select_metrics = ", ".join([f"{m}" for m in metrics]) if metrics else "*"
 
     # WHERE dinámico
     where_clauses = []
@@ -127,8 +127,7 @@ def build_query(filters_json: str) -> str:
     SELECT sfdc_name_l3, country, month, {select_metrics}
     FROM `jt-prd-financial-pa.random_data.anonymized`
     WHERE {where_clause}
-    GROUP BY country, month
-    ORDER BY country, month
+    ORDER BY country, month;
     """
     return sql
 
