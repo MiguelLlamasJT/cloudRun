@@ -6,7 +6,7 @@ from analysis import process_question
 app = FastAPI()
 
 SLACK_BOT_TOKEN = os.environ.get("SLACK_BOT_TOKEN")
-AUTHORIZED_USERS = ["U06BW8J6MRU"]
+AUTHORIZED_USERS = ["U06BW8J6MRU", "U031RNA3J86", "U01BECSBLJ1", "U02CYBAR4JY"] #miguel, gon, gato, dani
 processed_events = set()
 
 

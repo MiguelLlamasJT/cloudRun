@@ -68,6 +68,7 @@ representing SQL filters for a table in BigQuery.
    - If "MoM" or "month over month" → "MoM"
    - If "WoW" or "week over week" → "WoW"
    - Otherwise → "none"
+7. Do not differentiate between actuals & forecast if not told to.
 
 ---
 
@@ -93,7 +94,7 @@ JSON:
 Respond with JSON only.
     """
     response = claude.messages.create(
-        model="claude-3-5-haiku-20241022",  # ✅ current stable choice
+        model="claude-sonnet-4-20250514",  # ✅ current stable choice
         max_tokens=1000,
         messages=[{"role": "user", "content": prompt}]
     )
