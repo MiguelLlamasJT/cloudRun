@@ -21,7 +21,7 @@ def resolve_dataweek(filters):
         if val == "CURRENT":
             resolved.append(str(current))
         elif val == "PREVIOUS":
-            resolved.append(str(current))
+            resolved.append(str(previous))
         else:
             resolved.append(val)
     filters["data_week"] = resolved
@@ -90,15 +90,17 @@ Respond with JSON only.
     """
     response = claude.messages.create(
         model="claude-3-5-haiku-20241022",  # ✅ current stable choice
-        max_tokens=300,
+        max_tokens=1000,
         messages=[{"role": "user", "content": prompt}]
     )
+    print(response.content)
     return response.content[0].text
 
 
 
 def build_query(filters_json: str) -> str:
     filters = json.loads(filters_json)
+    filters["filters"] = resolve_dataweek(filters.get("filters", {}))
     metrics = filters.get("metrics", [])
 
     # SELECT dinámico
@@ -107,6 +109,8 @@ def build_query(filters_json: str) -> str:
     # WHERE dinámico
     where_clauses = []
     for col, vals in filters.get("filters", {}).items():
+        if not vals:
+            continue:
         vals_sql = ", ".join([f"'{v}'" for v in vals])
         where_clauses.append(f"{col} IN ({vals_sql})")
     where_clause = " AND ".join(where_clauses) if where_clauses else "1=1"
@@ -121,13 +125,19 @@ def build_query(filters_json: str) -> str:
     return sql
 
 def run_query(sql: str):
-    query_job = bq_client.query(sql)
-    return query_job.to_dataframe()
+    try:
+        query_job = bq_client.query(sql)
+        return query_job.to_dataframe()
+    except Exception as e:
+        print(f"Error ejecutando query: {e}")
+        return pd.DataFrame()
+
 
 def process_question(user_question: str) -> str:
     try:
         filters_json = get_filters_from_claude(user_question)
         sql = build_query(filters_json)
+        print(f"SQL generated: \n: {sql}")
         df = run_query(sql)
 
         # Devolver algo legible para Slack (ejemplo: primeras filas)

@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, BackgroundTasks
 import os
 import requests
 from analysis import process_question 
@@ -6,33 +6,48 @@ from analysis import process_question
 app = FastAPI()
 
 SLACK_BOT_TOKEN = os.environ.get("SLACK_BOT_TOKEN")
+AUTHORIZED_USERS = ["U06BW8J6MRU"]
+processed_events = set()
+
 
 @app.post("/slack/events")
-async def slack_events(req: Request):
+async def slack_events(req: Request, background_tasks: BackgroundTasks):
     body = await req.json()
 
     if body.get("type") == "url_verification":
         return body["challenge"]
 
     event = body.get("event", {})
+    event_id = body.get("event_id")
+    if event_id in processed_events:
+        print(f"evento ya siendo procesado: {event_id}")
+        return {"ok": True}
 
-    if event.get("type") == "message" and not event.get("bot_id"):
-        print(event)
-        channel = event.get("channel")
-        text = event.get("text")
-        thread_ts = event.get("thread_ts")
-        ts = event.get("ts")
+    processed_events.add(event_id)
 
-        if thread_ts:
-            # Mensaje en un thread → responder en el thread
-            result_text = process_question(text)
-            send_message(channel, result_text, thread_ts=thread_ts)
-        else:
-            result_text = process_question(text)
-            send_message(channel, result_text, thread_ts=ts)
+    if event.get("type") != "message" or event.get("bot_id"):
+        return {"ok": True}
 
+    print(event)
+    user = event.get("user")
+    channel = event.get("channel")
+    text = event.get("text")
+    thread_ts = event.get("thread_ts") or event.get("ts")
+
+    if not text:
+        return {"ok": True}
+
+    if (user not in AUTHORIZED_USERS):
+        print("usuario no autorizado")
+        background_tasks.add_task(send_message, channel,"Usuario no autorizado.", thread_ts)
+        return {"ok": True}
+    print("mensaje valido")
+    background_tasks.add_task(process_and_reply, channel, text, thread_ts)
     return {"ok": True}
 
+def process_and_reply(channel, text, ts):
+    result_text = process_question(text)
+    send_message(channel, result_text, thread_ts=ts)
 
 def send_message(channel, text, thread_ts=None):
     payload = {
