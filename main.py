@@ -34,19 +34,19 @@ async def slack_events(req: Request, background_tasks: BackgroundTasks):
     text = event.get("text")
     thread_ts = event.get("thread_ts") or event.get("ts")
 
-    send_message(channel, "Under maintenance.", thread_ts)
-    return {"ok": True}
-'''
+    #send_message(channel, "Under maintenance.", thread_ts)
+    #return {"ok": True}
+
     if not text:
         return {"ok": True}
-
+    text = get_thread_history(channel, thread_ts)
     if (user not in AUTHORIZED_USERS):
         print("usuario no autorizado")
         background_tasks.add_task(send_message, channel,"Usuario no autorizado.", thread_ts)
         return {"ok": True}
     print("mensaje valido")
     background_tasks.add_task(process_and_reply, channel, text, thread_ts)
-    return {"ok": True}'''
+    return {"ok": True}
 
 def process_and_reply(channel, text, ts):
     result_text = process_question(text)
@@ -68,3 +68,20 @@ def send_message(channel, text, thread_ts=None):
 
     # Para depuración
     print("Slack API response:", response.json())
+
+
+def get_thread_history(channel_id, thread_ts):
+    headers = {"Authorization": f"Bearer {SLACK_BOT_TOKEN}"}
+    payload = {"channel": channel_id, "ts": thread_ts, "limit": 200}
+
+    resp = requests.get(
+        "https://slack.com/api/conversations.replies", 
+        headers=headers,
+        params=payload)
+    
+    data = resp.json()
+    if not data.get("ok"):
+        print(f"Slack API error: {data.get('error')}")
+        return []
+    print(data["messages"])
+    return data["messages"]
