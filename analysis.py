@@ -86,7 +86,7 @@ def process_question(user_question: str) -> str:
         queryable_json = json.loads(call_claude_with_prompt("filter_messages.txt", user_question))
         if (queryable_json["is_queryable"] == "no"):
             return(queryable_json["reply_to_user"])
-        filters_json = json.loads(call_claude_with_prompt("query_filters.txt", user_question))
+        filters_json = call_claude_with_prompt("query_filters.txt", user_question)
         sql = build_query(filters_json)
         print(f"SQL generated:\n{sql}")
         df = run_query(sql)
