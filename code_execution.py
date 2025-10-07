@@ -33,7 +33,9 @@ def run_code_execution(prompt: str, df: pd.DataFrame, model: str = "claude-sonne
         print(response)
         text_blocks = [item.text for item in response.content if getattr(item, "type", None) == "text"]
         output_text = text_blocks[-1] if text_blocks else ""
-        return output_text.strip()
+        output_text = output_text.strip()
+        print("code execution did not fail")
+        return output_text
     finally:
         try:
             claude.beta.files.delete(uploaded.id)
