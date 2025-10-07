@@ -5,7 +5,7 @@ import datetime
 import pandas as pd
 from code_execution import run_code_execution
 from pathlib import Path
-
+import re
 
 bq_client = bigquery.Client()
 claude = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
@@ -81,6 +81,14 @@ def run_query(sql: str):
         return pd.DataFrame()
 
 
+def format_for_slack(text: str) -> str:
+    # Sustituir Markdown por formato Slack
+    text = re.sub(r"\*\*(.*?)\*\*", r"*\1*", text)  # **bold** → *bold*
+    text = re.sub(r"##+\s*", ">*", text)  # ## títulos → cita con asterisco
+    text = re.sub(r"###\s*", ">*", text)
+    text = re.sub(r"\n-{2,}\n", "\n", text)  # eliminar separadores ----
+    return text
+
 def process_question(user_question: str) -> str:
     try:
         queryable_json = json.loads(call_claude_with_prompt("filter_messages.txt", user_question))
@@ -92,10 +100,11 @@ def process_question(user_question: str) -> str:
         df = run_query(sql)
         print("Shape:", df.shape)
         code_exec_result = run_code_execution(user_question, df) 
+        output = format_for_slack(code_exec_result)
         return (
             #f"Filtros: {filters_json}\n\n"
             #f"Resultados (primeras filas):\n{df.head(5).to_string(index=False)}\n\n"
-            f"Code Execution:\n{code_exec_result}"
+            f"Code Execution:\n{output}"
         )
 
     except Exception as e:
