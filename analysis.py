@@ -94,7 +94,7 @@ JSON:
 Respond with JSON only.
     """
     response = claude.messages.create(
-        model="claude-sonnet-4-20250514",  # ✅ current stable choice
+        model="claude-3-5-haiku-latest",  # ✅ current stable choice
         max_tokens=1000,
         messages=[{"role": "user", "content": prompt}]
     )
