@@ -37,7 +37,7 @@ def resolve_dataweek(filters):
     return filters
 
 def call_claude_with_prompt(filename: str, user_input: str) -> str:
-    prompt = load_prompt(filename = filename, user_input = user_input)
+    prompt = load_prompt(file_name = filename, user_input = user_input)
     response = claude.messages.create(
         model="claude-3-5-haiku-latest", 
         max_tokens=1000,
