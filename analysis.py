@@ -65,7 +65,7 @@ def build_query(filters_json: str) -> str:
     where_clause = " AND ".join(where_clauses) if where_clauses else "1=1"
 
     sql = f"""
-    SELECT {select_metrics}
+    SELECT *
     FROM `jt-prd-financial-pa.random_data.real_data`
     WHERE {where_clause}
     ORDER BY country, month;
