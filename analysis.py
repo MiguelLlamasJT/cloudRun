@@ -31,15 +31,19 @@ def resolve_dataweek(filters):
 
 def get_filters_from_claude(user_question: str):
     prompt = f"""
-You are an assistant that translates natural language business questions into structured JSON 
-representing SQL filters for a table in BigQuery.
+You are a **financial data analyst** that translates natural language business questions 
+into structured JSON representing SQL filters for a BigQuery table.
+
+Your goal is to precisely identify filters, metrics, and comparison types from the user question.
+
+---
 
 ### Table schema:
-- data_week (DATE): snapshot week (always a Monday)
+- data_week (DATE)'YYYY-MM-DD': snapshot week (always a Monday)
 - sfdc_name_l3 (STRING): account name
 - am_name_l3 (STRING): account manager name
-- country (STRING): country code (BE (belgium), CO, DE, ES, FR, NO, PT, SE, UK, US)
-- service_type_l3 (STRING): service type (e.g. Staffing, Outsourcing)
+- country (STRING): country code (BE, CO, DE, ES, FR, NO, PT, SE, UK, US)
+- service_type_l3 (STRING): service type (Staffing, Outsourcing)
 - month (DATE): first day of the month
 - customer_type (STRING): EB, NE, Pipeline NB, Pipeline EB
 - revenue (FLOAT)
@@ -47,43 +51,61 @@ representing SQL filters for a table in BigQuery.
 - data_type (STRING): actuals or forecast
 - cohort (INT): year of account signing deal
 
+---
+
 ### Rules:
 1. Always return **only valid JSON**, with no extra text.
-2. JSON must have the structure:
+2. JSON must have this structure:
    {{
-     "filters": {{"column_name": ["value1","value2"]}},
-     "metrics": ["revenue","gross_profit"],
-     "comparison": "YoY" | "MoM" | "WoW" | "none"
+     "filters": {{
+       "column_name": ["value1","value2", ...]
+     }},
+     "metrics" : ["data_week", "sfdc_name_l3","am_name_l3", "country", "service_type_l3", "month", "customer_type", "revenue", "gross_profit", "data_type", "cohort"]
    }}
-3. Filters are allowed only on:  
-   [data_week, sfdc_name_l3, am_name_l3, country, service_type_l3, month, customer_type, cohort].
-4. About **data_week**:
-   - If the user does not mention any week → use the most recent data_week.
-   - If the user says "last week" → filter by the previous data_week.
-   - If the user says "WoW variations" → include both the current and previous data_week.
-5. About **month**:
-   - If the user does not mention any year -> use the current year.
-6. Comparison field:
-   - If "YoY" mentioned → "YoY"
-   - If "MoM" or "month over month" → "MoM"
-   - If "WoW" or "week over week" → "WoW"
-   - Otherwise → "none"
-7. Do not differentiate between actuals & forecast if not told to.
+3. **Allowed filters**: data_week, sfdc_name_l3, am_name_l3, country, service_type_l3, month, customer_type, data_type, cohort.
+4. **Gross margin logic:**
+   - Note: gross_margin = gross_profit / revenue.
+   - Do NOT add it unless explicitly or implicitly requested.
+5. **Temporal logic:**
+   - If the user mentions a **specific year (e.g. 2024, 2025)** → include the full year.
+   - If no year is mentioned → use the **most recent year available**.
+   - If no week is mentioned -> use only the most recent week
+   - If the user says "last week" → include previous `data_week`.
+   - If the user says "this week" → include current `data_week`.
+   - If the user says "WoW variations" → include both current and previous `data_week`.
+   - If the user says "month" or "quarter" → infer the relevant months within the given period or year.
+6. **Default behavior:**
+   - If time is mentioned but not granularity (week, month, quarter) → assume monthly.
+   - If the user asks for “2025” or any year without months/weeks → return the **entire year**.
+   - If no time reference at all → use the most recent available data.
 
 ---
 
-### Example (complex):
-User: "I want the WoW variations for Q1 revenue and gross margin in 2025 for ES Staffing"
+### Example: If the user mentions a **specific year (e.g. 2024, 2025)** → include the full year in filters.
+User: "Show me the WoW variations for gross margin and revenue in 2025 for Colombia Staffing"
 JSON:
 {{
   "filters": {{
-    "country": ["ES"],
+    "country": ["CO"],
     "service_type_l3": ["Staffing"],
-    "month": ["2025-01-01","2025-02-01","2025-03-01"],
-    "data_week": ["CURRENT","PREVIOUS"]
+    "data_week": ["CURRENT", "PREVIOUS"],
+    "month": ["2025-01-01","2025-02-01","2025-03-01","2025-04-01","2025-05-01","2025-06-01","2025-07-01","2025-08-01","2025-09-01","2025-10-01", "2025-11-01","2025-12-01"]
   }},
-  "metrics": ["revenue","gross_profit"],
-  "comparison": "WoW"
+  "metrics" : ["data_week", "sfdc_name_l3","am_name_l3", "country", "service_type_l3", "month", "customer_type", "revenue", "gross_profit", "data_type", "cohort"]
+}}
+
+
+### Example 1b:
+User: "Show me the WoW variations for gross margin and revenue in Q1 2025 / Q1.25 for Colombia Staffing"
+JSON:
+{{
+  "filters": {{
+    "country": ["CO"],
+    "service_type_l3": ["Staffing"],
+    "data_week": ["CURRENT", "PREVIOUS"],
+    "month": ["2025-01-01","2025-02-01","2025-03-01"]
+  }},
+  "metrics" : ["data_week", "sfdc_name_l3","am_name_l3", "country", "service_type_l3", "month", "customer_type", "revenue", "gross_profit", "data_type", "cohort"]
 }}
 
 ---
@@ -92,7 +114,7 @@ JSON:
 "{user_question}"
 
 Respond with JSON only.
-    """
+"""
     response = claude.messages.create(
         model="claude-3-5-haiku-latest",  # ✅ current stable choice
         max_tokens=1000,
@@ -125,7 +147,7 @@ def build_query(filters_json: str) -> str:
     where_clause = " AND ".join(where_clauses) if where_clauses else "1=1"
 
     sql = f"""
-    SELECT sfdc_name_l3, country, month, {select_metrics}
+    SELECT 
     FROM `jt-prd-financial-pa.random_data.real_data`
     WHERE {where_clause}
     ORDER BY country, month;

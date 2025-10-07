@@ -34,6 +34,9 @@ async def slack_events(req: Request, background_tasks: BackgroundTasks):
     text = event.get("text")
     thread_ts = event.get("thread_ts") or event.get("ts")
 
+    send_message(channel, "Under maintenance.", thread_ts)
+    return {"ok": True}
+'''
     if not text:
         return {"ok": True}
 
@@ -43,7 +46,7 @@ async def slack_events(req: Request, background_tasks: BackgroundTasks):
         return {"ok": True}
     print("mensaje valido")
     background_tasks.add_task(process_and_reply, channel, text, thread_ts)
-    return {"ok": True}
+    return {"ok": True}'''
 
 def process_and_reply(channel, text, ts):
     result_text = process_question(text)
