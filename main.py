@@ -2,6 +2,7 @@ from fastapi import FastAPI, Request, BackgroundTasks
 import os
 import requests
 from analysis import process_question 
+from datetime import datetime
 
 app = FastAPI()
 
@@ -75,13 +76,28 @@ def get_thread_history(channel_id, thread_ts):
     payload = {"channel": channel_id, "ts": thread_ts, "limit": 200}
 
     resp = requests.get(
-        "https://slack.com/api/conversations.replies", 
+        "https://slack.com/api/conversations.replies",
         headers=headers,
-        params=payload)
+        params=payload
+    )
     
     data = resp.json()
     if not data.get("ok"):
         print(f"Slack API error: {data.get('error')}")
-        return []
-    print(data["messages"])
-    return data["messages"]
+        return ""
+
+    messages = data.get("messages", [])
+    if not messages:
+        return ""
+
+    formatted_messages = []
+    for msg in messages:
+        ts = msg.get("ts", "")
+        text = msg.get("text", "")
+        try:
+            ts_readable = datetime.fromtimestamp(float(ts)).strftime("%Y-%m-%d %H:%M:%S")
+        except Exception:
+            ts_readable = ts
+        formatted_messages.append(f"[{ts_readable}] {text}")
+
+    return "\n".join(formatted_messages)
