@@ -54,12 +54,20 @@ def build_query(filters_json: str) -> str:
         raise e
     filters["filters"] = resolve_dataweek(filters.get("filters") or {})
     metrics = filters.get("metrics") or ["revenue", "gross_profit"]
-
     select_metrics = ", ".join([f"{m}" for m in metrics]) if metrics else "*"
+    allowed_columns = {
+        "data_week", "sfdc_name_l3", "am_name_l3", "country",
+        "service_type_l3", "month", "customer_type", "cohort", "data_type"
+    }
     where_clauses = []
     for col, vals in filters.get("filters", {}).items():
-        if not vals:
+        if col not in allowed_columns:
+            print(f"⚠️ Ignorando columna no válida: {col}")
             continue
+        if vals is None or vals == "":
+            continue
+        if isinstance(vals, (int, float, str)):
+            vals = [vals]
         vals_sql = ", ".join([f"'{v}'" for v in vals])
         where_clauses.append(f"{col} IN ({vals_sql})")
     where_clause = " AND ".join(where_clauses) if where_clauses else "1=1"
