@@ -14,7 +14,7 @@ claude = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
 def load_prompt(file_name: str, **kwargs) -> str:
     path = Path(file_name)
     text = path.read_text(encoding="utf-8")
-    text.format(**kwargs)
+    return text.format(**kwargs)
 
 def get_current_and_last_monday():
     today = datetime.date.today()
@@ -36,7 +36,7 @@ def resolve_dataweek(filters):
     filters["data_week"] = resolved
     return filters
 
-def call_claude_with_prompt(user_input: str, filename: str) -> str:
+def call_claude_with_prompt(filename: str, user_input: str) -> str:
     prompt = load_prompt(filename = filename, user_input = user_input)
     response = claude.messages.create(
         model="claude-3-5-haiku-latest", 
@@ -83,7 +83,7 @@ def run_query(sql: str):
 
 def process_question(user_question: str) -> str:
     try:
-        queryable_json = call_claude_with_prompt("filter_messages.txt", user_question)
+        queryable_json = json.loads(call_claude_with_prompt("filter_messages.txt", user_question))
         if (queryable_json["is_queryable"] == "no"):
             return(queryable_json["reply_to_user"])
         filters_json = call_claude_with_prompt("query_filters.txt", user_question)
