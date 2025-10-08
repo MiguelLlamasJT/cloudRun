@@ -25,14 +25,20 @@ def get_current_and_last_monday():
 
 def resolve_dataweek(filters):
     current, previous = get_current_and_last_monday()
+
+    if "data_week" not in filters or not filters["data_week"]:
+        filters["data_week"] = [str(current)]
+        return filters
+
     resolved = []
-    for val in filters.get("data_week", []):
+    for val in filters["data_week"]:
         if val == "CURRENT":
             resolved.append(str(current))
         elif val == "PREVIOUS":
             resolved.append(str(previous))
         else:
             resolved.append(val)
+
     filters["data_week"] = resolved
     return filters
 
