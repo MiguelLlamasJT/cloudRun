@@ -6,6 +6,7 @@ import pandas as pd
 from code_execution import run_code_execution
 from pathlib import Path
 import re
+from rapidfuzz import fuzz, process
 
 bq_client = bigquery.Client()
 claude = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
@@ -42,9 +43,8 @@ def resolve_dataweek(filters):
     filters["data_week"] = resolved
     return filters
 
-def call_claude_with_prompt(filename: str, user_input: str) -> str:
+def call_claude_with_prompt(prompt: str) -> str:
     try:
-        prompt = load_prompt(file_name = filename, user_input = user_input)
         response = claude.messages.create(
             model="claude-3-5-haiku-latest", 
             max_tokens=1000,
@@ -53,9 +53,10 @@ def call_claude_with_prompt(filename: str, user_input: str) -> str:
         print(response.content[0].text)
         return response.content[0].text
     except Exception as e:
-        print("Fallo en la llamada a claude con filename: " + filename)
+        print("Fallo en la llamada a claude.")
         raise
         
+
 
 def build_query(filters_json: str) -> str:
     try:
@@ -96,6 +97,15 @@ def build_query(filters_json: str) -> str:
     """
     return sql
 
+def get_customer_list():
+    sql = """
+    SELECT DISTINCT sfdc_name_l3
+    FROM `jt-prd-financial-pa.random_data.real_data`
+    WHERE sfdc_name_l3 IS NOT NULL
+    """
+    run_query(sql)
+    return sql
+
 def run_query(sql: str):
     try:
         query_job = bq_client.query(sql)
@@ -113,12 +123,55 @@ def format_for_slack(text: str) -> str:
     text = re.sub(r"\n-{2,}\n", "\n", text)  # eliminar separadores ----
     return text
 
+def match_customers(mentioned_clients: list, all_customers: list, top_n: int = 10):
+
+    exact_matches = set()
+    fuzzy_candidates = set()
+
+    for name in mentioned_clients:
+        results = process.extract(name, all_customers, scorer=fuzz.token_sort_ratio, limit=top_n)
+        for match_name, score, _ in results:
+            if score >= 85:
+                exact_matches.add(match_name)
+            elif 60 <= score < 85:
+                fuzzy_candidates.add(match_name)
+
+    if exact_matches:
+        return {"case": "direct_match", "exact": list(exact_matches), "candidates": []}
+    elif fuzzy_candidates:
+        return {"case": "ambiguous_match", "exact": [], "candidates": list(fuzzy_candidates)}
+    else:
+        return {"case": "not_found", "exact": [], "candidates": []}
+
 def process_question(user_question: str) -> str:
     try:
-        queryable_json = json.loads(call_claude_with_prompt("filter_messages.txt", user_question))
+        print("User History: " + user_question)
+        queryable_json = json.loads(
+            call_claude_with_prompt(
+                load_prompt("filter_messages.txt", user_input = user_question)
+                )
+            )
+        print("🧠 Queryable JSON:", queryable_json)
         if (queryable_json["is_queryable"] == "no"):
             return(queryable_json["reply_to_user"])
-        filters_json = call_claude_with_prompt("query_filters.txt", user_question)
+        if (queryable_json["client_related"] == "yes"):
+            df_clients = get_customer_list()
+            all_clients = df_clients["sfdc_name_l3"].dropna().astype(str).tolist()
+            mentioned = queryable_json.get("clients_mentioned") or []
+            if mentioned:
+                matched = match_customers(mentioned, all_clients, top_n=10)
+                print("🔍 Matching result:", matched)
+                if matched["case"] == "direct_match":
+                    customer_string = ", ".join(matched["exact"])
+                    user_question += f"\n\nThese are the exact customers detected: {customer_string}"
+                elif matched["case"] == "ambiguous_match":
+                    candidates = ", ".join(matched["candidates"])
+                    return f"❓ I couldn’t find exact matches for those clients. Did you mean one of these?\n{candidates}"
+                elif matched["case"] == "not_found":
+                    return "❌ I couldn’t find any customers matching that name. Could you rephrase or check the spelling?"
+            else:
+                print("⚠️ No clients mentioned, proceeding normally.")
+        filters_json = call_claude_with_prompt(load_prompt("query_filters.txt", user_input=user_question))
         sql = build_query(filters_json)
         print(f"SQL generated:\n{sql}")
         df = run_query(sql)

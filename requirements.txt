@@ -6,3 +6,4 @@ pandas
 anthropic
 openai
 db-dtypes
+rapidfuzz
