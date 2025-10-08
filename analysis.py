@@ -50,7 +50,6 @@ def call_claude_with_prompt(prompt: str) -> str:
             max_tokens=1000,
             messages=[{"role": "user", "content": prompt}]
         )
-        print(response.content[0].text)
         return response.content[0].text
     except Exception as e:
         print("Fallo en la llamada a claude.")
@@ -58,12 +57,7 @@ def call_claude_with_prompt(prompt: str) -> str:
         
 
 
-def build_query(filters_json: str) -> str:
-    try:
-        filters = json.loads(filters_json)
-    except json.JSONDecodeError as e:
-        print("❌ Claude devolvió JSON inválido:", filters_json)
-        raise e
+def build_query(filters: str) -> str:
     try:
         filters["filters"] = resolve_dataweek(filters.get("filters") or {})
     except Exception as e:
@@ -124,24 +118,27 @@ def format_for_slack(text: str) -> str:
     return text
 
 def match_customers(mentioned_clients: list, all_customers: list, top_n: int = 10):
+    try:
+        exact_matches = set()
+        fuzzy_candidates = set()
 
-    exact_matches = set()
-    fuzzy_candidates = set()
+        for name in mentioned_clients:
+            results = process.extract(name, all_customers, scorer=fuzz.token_sort_ratio, limit=top_n)
+            for match_name, score, _ in results:
+                if score >= 85:
+                    exact_matches.add(match_name)
+                elif 60 <= score < 85:
+                    fuzzy_candidates.add(match_name)
 
-    for name in mentioned_clients:
-        results = process.extract(name, all_customers, scorer=fuzz.token_sort_ratio, limit=top_n)
-        for match_name, score, _ in results:
-            if score >= 85:
-                exact_matches.add(match_name)
-            elif 60 <= score < 85:
-                fuzzy_candidates.add(match_name)
-
-    if exact_matches:
-        return {"case": "direct_match", "exact": list(exact_matches), "candidates": []}
-    elif fuzzy_candidates:
-        return {"case": "ambiguous_match", "exact": [], "candidates": list(fuzzy_candidates)}
-    else:
-        return {"case": "not_found", "exact": [], "candidates": []}
+        if exact_matches:
+            return {"case": "direct_match", "exact": list(exact_matches), "candidates": []}
+        elif fuzzy_candidates:
+            return {"case": "ambiguous_match", "exact": [], "candidates": list(fuzzy_candidates)}
+        else:
+            return {"case": "not_found", "exact": [], "candidates": []}
+    except Exception as e:
+        print("Error en match customers")
+        raise e
 
 def process_question(user_question: str) -> str:
     try:
@@ -171,7 +168,8 @@ def process_question(user_question: str) -> str:
                     return "❌ I couldn’t find any customers matching that name. Could you rephrase or check the spelling?"
             else:
                 print("⚠️ No clients mentioned, proceeding normally.")
-        filters_json = call_claude_with_prompt(load_prompt("query_filters.txt", user_input=user_question))
+        filters_json = json.loads(call_claude_with_prompt(load_prompt("query_filters.txt", user_input=user_question)))
+        print("🧠 Filters created:" + filters_json)
         sql = build_query(filters_json)
         print(f"SQL generated:\n{sql}")
         df = run_query(sql)
