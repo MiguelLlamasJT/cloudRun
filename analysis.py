@@ -152,7 +152,7 @@ def process_question(user_question: str) -> str:
                 )
             )
         print("🧠 Queryable JSON:", queryable_json)
-        if (queryable_json["is_queryable"] == "no" or queryable_json["confirmation"] == "yes"):
+        if (queryable_json["is_queryable"] == "no" or queryable_json["confirmation_required"] == "yes"):
             return(queryable_json["reply_to_user"])
         if (queryable_json["client_related"] == "yes"):
             df_clients = get_customer_list()
