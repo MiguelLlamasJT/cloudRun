@@ -9,8 +9,8 @@ Your goal is to precisely identify filters, metrics, and comparison types from t
 - data_week (DATE)'YYYY-MM-DD': snapshot week (always a Monday)
 - sfdc_name_l3 (STRING): account name
 - am_name_l3 (STRING): account manager name
-- country (STRING): country code (BE, CO, DE, ES, FR, NO, PT, SE, UK, US)
-- service_type_l3 (STRING): service type (Staffing, Outsourcing)
+- country (STRING): country code (BE (belgium), CO (colombia), DE (germany), ES(spain), FR(france), NO(norway), PT(portugal), SE(sweden), UK(united kingdom), US(united states))
+- service_type_l3 (STRING): service type (Staffing or Outsourcing)
 - month (DATE): first day of the month
 - customer_type (STRING): EB, NE, Pipeline NB, Pipeline EB
 - revenue (FLOAT)
@@ -62,7 +62,7 @@ JSON:
 }}
 
 
-### Example 1b:
+### Example:
 User: "Show me the WoW variations for gross margin and revenue in Q1 2025 / Q1.25 for Colombia Staffing"
 JSON:
 {{
@@ -75,6 +75,24 @@ JSON:
   "metrics" : ["data_week", "sfdc_name_l3","am_name_l3", "country", "service_type_l3", "month", "customer_type", "revenue", "gross_profit", "data_type", "cohort"]
 }}
 
+
+### Example: Confusing data "DE" and "OUTSOURCING" in client name, they are not included in filters
+User:
+i dont need any granularity nor filters, only full year de ruy perfumes revenue
+Chatbot "I couldn’t find exact matches for those clients. Did you mean one of these?
+REUL FRERES, LE PRETERY, DE LEEUW, FERME DE HEPSEE, DE RUY PERFUMES-OUTSOURCING, HOME DESIGN READY, TERRE DE FROMAGES, DE POEL MANAGED SERVICES UK, DESPRETZ SARL, ECS SERVICES SPRL"
+User:
+"de ruy perfumes outsourcing yes"
+
+JSON:
+{{
+  "filters": {{
+    "sfdc_name_l3": "DE RUY PERFUMES-OUTSOURCING",
+    "data_week": ["CURRENT"],
+    "month": ["2025-01-01","2025-02-01","2025-03-01","2025-04-01","2025-05-01","2025-06-01","2025-07-01","2025-08-01","2025-09-01","2025-10-01", "2025-11-01","2025-12-01"]
+  }},
+  "metrics" : ["data_week", "sfdc_name_l3","am_name_l3", "country", "service_type_l3", "month", "customer_type", "revenue", "gross_profit", "data_type", "cohort"]
+}}
 ---
 
 ### Actual user question:

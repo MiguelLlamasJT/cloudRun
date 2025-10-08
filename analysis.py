@@ -129,7 +129,7 @@ def match_customers(mentioned_clients: list, all_customers: list, top_n: int = 1
                 if score >= 85:
                     print(f"{match_name}score: {score}")
                     exact_matches.add(match_name)
-                elif 40 <= score < 85:
+                elif 55 <= score < 85:
                     print(f"{match_name}score: {score}")
                     fuzzy_candidates.add(match_name)
 
