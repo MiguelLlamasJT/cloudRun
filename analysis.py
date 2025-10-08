@@ -97,8 +97,9 @@ def get_customer_list():
     FROM `jt-prd-financial-pa.random_data.real_data`
     WHERE sfdc_name_l3 IS NOT NULL
     """
-    run_query(sql)
-    return sql
+    df = run_query(sql)
+    print("Succesfull customer list.")
+    return df
 
 def run_query(sql: str):
     try:
