@@ -127,8 +127,10 @@ def match_customers(mentioned_clients: list, all_customers: list, top_n: int = 1
             results = process.extract(name, all_customers, scorer=fuzz.token_sort_ratio, limit=top_n)
             for match_name, score, _ in results:
                 if score >= 85:
+                    print(f"{match_name}score: {score}")
                     exact_matches.add(match_name)
-                elif 60 <= score < 85:
+                elif 40 <= score < 85:
+                    print(f"{match_name}score: {score}")
                     fuzzy_candidates.add(match_name)
 
         if exact_matches:
