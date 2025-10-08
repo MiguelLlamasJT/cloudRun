@@ -152,7 +152,7 @@ def process_question(user_question: str) -> str:
                 )
             )
         print("🧠 Queryable JSON:", queryable_json)
-        if (queryable_json["is_queryable"] == "no"):
+        if (queryable_json["is_queryable"] == "no" or queryable_json["confirmation"] == "yes"):
             return(queryable_json["reply_to_user"])
         if (queryable_json["client_related"] == "yes"):
             df_clients = get_customer_list()
@@ -172,7 +172,7 @@ def process_question(user_question: str) -> str:
             else:
                 print("⚠️ No clients mentioned, proceeding normally.")
         filters_json = json.loads(call_claude_with_prompt(load_prompt("query_filters.txt", user_input=user_question)))
-        print("🧠 Filters created:" + filters_json)
+        print("🧠 Filters created:",filters_json)
         sql = build_query(filters_json)
         print(f"SQL generated:\n{sql}")
         df = run_query(sql)
