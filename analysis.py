@@ -43,14 +43,19 @@ def resolve_dataweek(filters):
     return filters
 
 def call_claude_with_prompt(filename: str, user_input: str) -> str:
-    prompt = load_prompt(file_name = filename, user_input = user_input)
-    response = claude.messages.create(
-        model="claude-3-5-haiku-latest", 
-        max_tokens=1000,
-        messages=[{"role": "user", "content": prompt}]
-    )
-    print(response.content[0].text)
-    return response.content[0].text
+    try:
+        prompt = load_prompt(file_name = filename, user_input = user_input)
+        response = claude.messages.create(
+            model="claude-3-5-haiku-latest", 
+            max_tokens=1000,
+            messages=[{"role": "user", "content": prompt}]
+        )
+        print(response.content[0].text)
+        return response.content[0].text
+    except Exception as e:
+        print("Fallo en la llamada a claude con filename: " + filename)
+        raise
+        
 
 def build_query(filters_json: str) -> str:
     try:
@@ -58,7 +63,12 @@ def build_query(filters_json: str) -> str:
     except json.JSONDecodeError as e:
         print("❌ Claude devolvió JSON inválido:", filters_json)
         raise e
-    filters["filters"] = resolve_dataweek(filters.get("filters") or {})
+    try:
+        filters["filters"] = resolve_dataweek(filters.get("filters") or {})
+    except Exception as e:
+        print("Fallo al procesar dataweek.")
+        raise
+    
     metrics = filters.get("metrics") or ["revenue", "gross_profit"]
     select_metrics = ", ".join([f"{m}" for m in metrics]) if metrics else "*"
     allowed_columns = {

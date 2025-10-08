@@ -41,6 +41,7 @@ async def slack_events(req: Request, background_tasks: BackgroundTasks):
     if not text:
         return {"ok": True}
     text = get_thread_history(channel, thread_ts)
+    print(text)
     if (user not in AUTHORIZED_USERS):
         print("usuario no autorizado")
         background_tasks.add_task(send_message, channel,"Usuario no autorizado.", thread_ts)
