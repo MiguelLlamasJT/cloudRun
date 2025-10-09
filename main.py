@@ -51,7 +51,7 @@ async def slack_events(req: Request, background_tasks: BackgroundTasks):
 
     if event.get("type") != "message" or event.get("bot_id"):
         return {"ok": True}
-    logging.info(event)
+    logging.info("event: %s", json.dumps(event))
     print(event)
     user = event.get("user")
     channel = event.get("channel")
