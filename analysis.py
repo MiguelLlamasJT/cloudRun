@@ -64,6 +64,7 @@ def call_claude_with_prompt(prompt: str) -> str:
             max_tokens=1000,
             messages=[{"role": "user", "content": prompt}]
         )
+        print(response.content[0].text)
     except Exception as e:
         print("Fallo en la llamada a claude.")
         raise
