@@ -7,6 +7,20 @@ from code_execution import run_code_execution
 from pathlib import Path
 import re
 from rapidfuzz import fuzz, process
+from starlette.concurrency import run_in_threadpool
+import asyncio
+import httpx
+
+""". USAR ESTO PARA LLAMADAS I/O, no para procesamiento como pandas, para eso usar ProcessPoolExecutor
+from concurrent.futures import ThreadPoolExecutor //Para esto hacen falta 2 CPUs, solo tengo una
+
+# Crea un pool limitado (por ejemplo, 5 threads)
+custom_thread_pool = ThreadPoolExecutor(max_workers=5)
+
+Y luego para usarlo en run_thread:
+await loop.run_inexecutor(custom_thread_pool, func, *args, **kwargs)
+
+"""
 
 bq_client = bigquery.Client()
 claude = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
@@ -50,10 +64,16 @@ def call_claude_with_prompt(prompt: str) -> str:
             max_tokens=1000,
             messages=[{"role": "user", "content": prompt}]
         )
-        return response.content[0].text
     except Exception as e:
         print("Fallo en la llamada a claude.")
         raise
+    try:
+        output = json.loads(response.content[0].text)
+        return output
+    except Exception as e:
+        print("Fallo en el json de claude.")
+        raise
+    
         
 
 
@@ -143,13 +163,26 @@ def match_customers(mentioned_clients: list, all_customers: list, top_n: int = 1
         print("Error en match customers")
         raise e
 
+""" FUTURA IMPLEMENTACION DE HILOS CONCURRENTES
+async def procesar_async(body):
+
+    tarea_bq = await run_in_threadpool(run_query())
+    tarea_claude = await run_in_threadpool(call_claude_with_prompt, body["text"])
+    resultados_bq, resultados_claude = await asyncio.gather(tarea_bq, tarea_claude)
+
+    print("✅ BigQuery result:", resultados_bq)
+    print("✅ Claude result:", resultados_claude)
+
+def process_questionNew(user_question: str) -> None:
+    loop = asyncio.get_event_loop()
+    asyncio.run_coroutine_threadsafe(procesar_async(user_question), loop)
+"""
+
 def process_question(user_question: str) -> str:
     try:
         print("User History: " + user_question)
-        queryable_json = json.loads(
-            call_claude_with_prompt(
-                load_prompt("filter_messages.txt", user_input = user_question)
-                )
+        queryable_json = call_claude_with_prompt(
+            load_prompt("filter_messages.txt", user_input = user_question)
             )
         print("🧠 Queryable JSON:", queryable_json)
         if (queryable_json["is_queryable"] == "no" or queryable_json["confirmation_required"] == "yes"):
@@ -171,7 +204,7 @@ def process_question(user_question: str) -> str:
                     return "❌ I couldn’t find any customers matching that name. Could you rephrase or check the spelling?"
             else:
                 print("⚠️ No clients mentioned, proceeding normally.")
-        filters_json = json.loads(call_claude_with_prompt(load_prompt("query_filters.txt", user_input=user_question)))
+        filters_json = call_claude_with_prompt(load_prompt("query_filters.txt", user_input=user_question))
         print("🧠 Filters created:",filters_json)
         sql = build_query(filters_json)
         print(f"SQL generated:\n{sql}")
