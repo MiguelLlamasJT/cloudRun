@@ -3,32 +3,39 @@ import os
 import requests
 from analysis import process_question 
 from datetime import datetime
+import logging
+import sys
 
 app = FastAPI()
 
 SLACK_BOT_TOKEN = os.environ.get("SLACK_BOT_TOKEN")
-AUTHORIZED_USERS = ["U06BW8J6MRU", "U031RNA3J86", "U01BECSBLJ1", "U02CYBAR4JY"] #miguel, gon, gato, dani
+AUTHORIZED_USERS = ["U06BW8J6MRU"] #, "U031RNA3J86", "U01BECSBLJ1", "U02CYBAR4JY"] #miguel, gon, gato, dani
 processed_events = set()
 
+logging.basicConfig(
+    level=logging.INFO,  # Nivel mínimo de log mostrado
+    format="[%(levelname)s] %(name)s: %(message)s",
+    handlers=[logging.StreamHandler(sys.stdout)]  # Enviar todo a stdout
+)
 
 @app.post("/slack/events")
 async def slack_events(req: Request, background_tasks: BackgroundTasks):
     body = await req.json()
 
-    if body.get("type") == "url_verification":
+    if body.get("type") == "url_verification": 
         return body["challenge"]
 
     event = body.get("event", {})
     event_id = body.get("event_id")
     if event_id in processed_events:
-        print(f"evento ya siendo procesado: {event_id}")
+        logging.warning("Evento ya siendo procesado: %s", event_id)
         return {"ok": True}
 
     processed_events.add(event_id)
 
     if event.get("type") != "message" or event.get("bot_id"):
         return {"ok": True}
-
+    logging.info(event)
     print(event)
     user = event.get("user")
     channel = event.get("channel")
@@ -40,11 +47,11 @@ async def slack_events(req: Request, background_tasks: BackgroundTasks):
 
     if not text:
         return {"ok": True}
-    text = get_thread_history(channel, thread_ts)
     if (user not in AUTHORIZED_USERS):
         print("usuario no autorizado")
-        background_tasks.add_task(send_message, channel,"Usuario no autorizado.", thread_ts)
+        background_tasks.add_task(send_message, channel,"Under maintenance.", thread_ts)
         return {"ok": True}
+    text = get_thread_history(channel, thread_ts)
     print("mensaje valido")
     background_tasks.add_task(process_and_reply, channel, text, thread_ts)
     return {"ok": True}

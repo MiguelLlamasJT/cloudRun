@@ -5,8 +5,9 @@
 - Afinamiento del thread history, que dé mas peso a lo reciente
 
 
-
-
+Sobre Slack:
+- Los events los deberia guardar en una base de datos de firestore/reddis para mantener persistencia entre encendidos
+- Los mensajes editados/borrados reaccionar a ellos.
 
 De los threads:
 - Yo necesito el async original para manejar distintas requests a la vez, y luego el background para poder responder primero y luego ejecutar, esto es lo que diferencia a background de async, y luego seria bueno meter hilos para tareas simultaneas de I/O, como runear la query y llamar al primer llm, o si hay dos llms simultaneos.
