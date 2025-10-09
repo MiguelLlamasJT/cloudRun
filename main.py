@@ -5,6 +5,7 @@ from analysis import process_question
 from datetime import datetime
 import logging
 import sys
+import json
 
 app = FastAPI()
 
@@ -17,6 +18,21 @@ logging.basicConfig(
     format="[%(levelname)s] %(name)s: %(message)s",
     handlers=[logging.StreamHandler(sys.stdout)]  # Enviar todo a stdout
 )
+
+class GCPJsonFormatter(logging.Formatter):
+    def format(self, record):
+        log = {
+            "severity": record.levelname,
+            "message": record.getMessage(),
+            "logger": record.name,
+        }
+        return json.dumps(log)
+
+handler = logging.StreamHandler(sys.stdout)
+handler.setFormatter(GCPJsonFormatter())
+root = logging.getLogger()
+root.setLevel(logging.INFO)
+root.addHandler(handler)
 
 @app.post("/slack/events")
 async def slack_events(req: Request, background_tasks: BackgroundTasks):
