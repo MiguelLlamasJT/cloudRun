@@ -57,6 +57,25 @@ def resolve_dataweek(filters):
     filters["data_week"] = resolved
     return filters
 
+def safe_json_parse(text: str):
+
+    try:
+        match = re.search(r"\{[\s\S]*\}", text)
+        if not match:
+            raise ValueError("No se encontró un bloque JSON en el texto recibido.")
+        
+        cleaned = match.group(0)
+
+        cleaned = re.sub(r'(?<!\\)\n', '\\n', cleaned)
+
+        cleaned = cleaned.strip(" \t\r\n")
+
+        return json.loads(cleaned)
+    
+    except json.JSONDecodeError as e:
+        print("Error en JSON")
+        raise ValueError(f"Error al parsear JSON: {e}\nTexto limpio:\n{cleaned[:500]}")
+
 def call_claude_with_prompt(prompt: str) -> str:
     try:
         response = claude.messages.create(
@@ -64,20 +83,15 @@ def call_claude_with_prompt(prompt: str) -> str:
             max_tokens=1000,
             messages=[{"role": "user", "content": prompt}]
         )
-        print(response.content[0].text)
+        output = response.content[0].text
+        safe_json = safe_json_parse(output)
+        print(safe_json)
+        return safe_json
     except Exception as e:
         print("Fallo en la llamada a claude.")
         raise
-    try:
-        output = json.loads(response.content[0].text)
-        return output
-    except Exception as e:
-        print("Fallo en el json de claude.")
-        raise
     
         
-
-
 def build_query(filters: str) -> str:
     try:
         filters["filters"] = resolve_dataweek(filters.get("filters") or {})
