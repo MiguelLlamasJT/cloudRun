@@ -1,9 +1,9 @@
-import os
-import tempfile
-import anthropic
+import os, tempfile
 import pandas as pd
+from app import claude
+import logging
+logger = logging.getLogger(__name__)
 
-claude = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
 
 def run_code_execution(prompt: str, df: pd.DataFrame, model: str = "claude-sonnet-4-20250514") -> str:
     if df.empty:

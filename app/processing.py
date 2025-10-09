@@ -1,15 +1,13 @@
-import os, json
-from google.cloud import bigquery
-import anthropic
-import datetime
+import os, json, datetime, re, asyncio, httpx
 import pandas as pd
-from code_execution import run_code_execution
+from app.execution_code import run_code_execution
 from pathlib import Path
-import re
 from rapidfuzz import fuzz, process
 from starlette.concurrency import run_in_threadpool
-import asyncio
-import httpx
+from app import claude, bq_client
+
+import logging
+logger = logging.getLogger(__name__)
 
 """. USAR ESTO PARA LLAMADAS I/O, no para procesamiento como pandas, para eso usar ProcessPoolExecutor
 from concurrent.futures import ThreadPoolExecutor //Para esto hacen falta 2 CPUs, solo tengo una
@@ -21,10 +19,6 @@ Y luego para usarlo en run_thread:
 await loop.run_inexecutor(custom_thread_pool, func, *args, **kwargs)
 
 """
-
-bq_client = bigquery.Client()
-claude = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
-
 
 def load_prompt(file_name: str, **kwargs) -> str:
     path = Path(file_name)
