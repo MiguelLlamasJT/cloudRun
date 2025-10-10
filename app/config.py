@@ -9,7 +9,7 @@ from google.cloud import bigquery
 
 load_dotenv()
 logging.basicConfig(
-    level=logging.INFO,  # Nivel mínimo de log mostrado
+    level=logging.DEBUG,  # Nivel mínimo de log mostrado
     format="[%(levelname)s] %(name)s.%(funcName)s():Line %(lineno)d → %(message)s",
     handlers=[logging.StreamHandler(sys.stdout)]  # Enviar todo a stdout
 )
