@@ -1,12 +1,19 @@
-import logging,sys,json, anthropic, os
+import logging
+import sys
+import json
+import anthropic
+import os
 from dotenv import load_dotenv
 from google.cloud import bigquery
 
+
+load_dotenv()
 logging.basicConfig(
     level=logging.INFO,  # Nivel mínimo de log mostrado
     format="[%(levelname)s] %(name)s.%(funcName)s():Line %(lineno)d → %(message)s",
     handlers=[logging.StreamHandler(sys.stdout)]  # Enviar todo a stdout
 )
+logger = logging.getLogger(__name__)
 
 class GCPJsonFormatter(logging.Formatter):
     def format(self, record):

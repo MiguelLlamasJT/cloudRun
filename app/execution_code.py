@@ -30,20 +30,20 @@ def run_code_execution(prompt: str, df: pd.DataFrame, model: str = "claude-sonne
             }],
             tools=[{"type": "code_execution_20250825", "name": "code_execution"}]
         )
-        print(response)
+        logger.debug(response)
         text_blocks = [item.text for item in response.content if getattr(item, "type", None) == "text"]
         output_text = text_blocks[-1] if text_blocks else ""
         output_text = output_text.strip()
-        print("code execution did not fail")
+        logger.debug("code execution did not fail")
         return output_text
     finally:
         try:
             claude.beta.files.delete(uploaded.id)
-            print("deleted file")
+            logger.debug("deleted file")
         except Exception as e:
-            print(f"Could not delete file: {e}")
+            logger.error(f"Could not delete file: {e}")
         try:
             os.remove(tmp_path)
             print("removed path")
         except Exception as e:
-            print(f"could not delete path: {e}")
+            logger.error(f"could not delete path: {e}")
