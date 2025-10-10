@@ -69,6 +69,7 @@ def safe_json_parse(text: str):
 
 def call_claude_with_prompt(prompt: str) -> str:
     try:
+        logger.debug(prompt)
         response = claude.messages.create(
             model="claude-3-5-haiku-latest", 
             max_tokens=1000,
@@ -191,7 +192,7 @@ def process_question(user_question: str, channel:str, user:str, threadts: str) -
     try:
         logger.debug("User History: %s", user_question)
         queryable_json = call_claude_with_prompt(
-            load_prompt(PROMPTS_PATH + "filter_messages.txt", user_input = user_question)
+            load_prompt(PROMPTS_PATH + "filter_messages2.txt", user_input = user_question)
             )
         logger.debug("🧠 Queryable JSON: %s", json.dumps(queryable_json))
         if (queryable_json["is_queryable"] == "no" or queryable_json["confirmation_required"] == "yes"):

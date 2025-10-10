@@ -155,3 +155,7 @@ Output:
   "clients_mentioned": ["Glovo"],
   "reply_to_user": "✅ Confirmed. Querying all available data for Glovo."
 }}
+
+[INPUT]
+This is the full chat history between the user and you:
+{user_input}
