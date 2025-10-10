@@ -32,7 +32,9 @@ def run_code_execution(prompt: str, df: pd.DataFrame, model: str = "claude-sonne
         output_text = text_blocks[-1] if text_blocks else ""
         output_text = output_text.strip()
         logger.debug("code execution did not fail")
-        return output_text
+        input_tokens = "\n\nInput tokens: " + str(response.usage.input_tokens)
+        logger.debug(input_tokens)
+        return output_text + input_tokens
     finally:
         try:
             claude.beta.files.delete(uploaded.id)
