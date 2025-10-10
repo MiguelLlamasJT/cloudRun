@@ -15,14 +15,10 @@ def run_code_execution(prompt: str, df: pd.DataFrame, channel: str, user: str, t
     
     logger.debug("file created at " + tmp_path)
 
-    uploaded = None
-    stop_event = Event()
-    
+    with open(tmp_path, "rb") as f:
+            uploaded = claude.beta.files.upload(file=("data.csv", f, "text/csv"))
     try:
         thinking = send_message(channel=channel, thread_ts=threadts, text="💭 Thinking...")
-        thinking_ts = thinking["ts"]
-        with open(tmp_path, "rb") as f:
-            uploaded = claude.beta.files.upload(file=("data.csv", f, "text/csv"))
         response = claude.beta.messages.create(
             model=model,
             betas=["code-execution-2025-08-25", "files-api-2025-04-14", "context-1m-2025-08-07"],
@@ -46,7 +42,7 @@ def run_code_execution(prompt: str, df: pd.DataFrame, channel: str, user: str, t
         logger.debug("code execution did not fail")
         input_tokens = "\n\nInput tokens: " + str(response.usage.input_tokens)
         logger.debug(input_tokens)
-        return output_text + input_tokens, thinking_ts
+        return output_text + input_tokens, thinking
     finally:
         try:
             claude.beta.files.delete(uploaded.id)
