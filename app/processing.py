@@ -90,7 +90,7 @@ def build_query(filters: str) -> str:
         logger.error("Fallo al procesar dataweek.")
         raise
     
-    metrics = filters.get("metrics") or ["revenue", "gross_profit"]
+    metrics = filters.get("metrics")
     select_metrics = ", ".join([f"{m}" for m in metrics]) if metrics else "*"
     allowed_columns = {
         "data_week", "sfdc_name_l3", "am_name_l3", "country",
@@ -110,7 +110,7 @@ def build_query(filters: str) -> str:
     where_clause = " AND ".join(where_clauses) if where_clauses else "1=1"
 
     sql = f"""
-    SELECT *
+    SELECT {select_metrics}
     FROM `jt-prd-financial-pa.random_data.real_data`
     WHERE {where_clause}
     ORDER BY country, month;
@@ -203,7 +203,7 @@ def process_question(user_question: str) -> str:
                 if matched["case"] == "direct_match":
                     logger.debug("Found exact customers.")
                     customer_string = ", ".join(matched["exact"])
-                    user_question += f"\n\nThese are the exact customers detected: {customer_string}"
+                    user_question += f"\n\nThese are the exact customers detected with an internal function based on the thread: {customer_string}"
                 elif matched["case"] == "ambiguous_match":
                     candidates = ", ".join(matched["candidates"])
                     logger.debug("Found similar customers.")
