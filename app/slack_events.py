@@ -6,7 +6,7 @@ from app.processing import process_question
 logger = logging.getLogger(__name__)
 processed_events = set()
 
-def handle_slack_event(body: dict):
+def handler(body: dict):
     if body.get("type") == "url_verification":
         logger.info("Verification request from Slack")
         return body["challenge"]

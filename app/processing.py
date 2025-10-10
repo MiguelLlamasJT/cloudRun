@@ -67,7 +67,7 @@ def safe_json_parse(text: str):
         return json.loads(cleaned)
     
     except json.JSONDecodeError as e:
-        print("Error en JSON")
+        logger.error("Error en JSON")
         raise ValueError(f"Error al parsear JSON: {e}\nTexto limpio:\n{cleaned[:500]}")
 
 def call_claude_with_prompt(prompt: str) -> str:
@@ -79,10 +79,10 @@ def call_claude_with_prompt(prompt: str) -> str:
         )
         output = response.content[0].text
         safe_json = safe_json_parse(output)
-        print(safe_json)
+        logger.debug(safe_json)
         return safe_json
     except Exception as e:
-        print("Fallo en la llamada a claude.")
+        logger.debug("Fallo en la llamada a claude.")
         raise
     
         
@@ -90,7 +90,7 @@ def build_query(filters: str) -> str:
     try:
         filters["filters"] = resolve_dataweek(filters.get("filters") or {})
     except Exception as e:
-        print("Fallo al procesar dataweek.")
+        logger.error("Fallo al procesar dataweek.")
         raise
     
     metrics = filters.get("metrics") or ["revenue", "gross_profit"]
@@ -102,7 +102,7 @@ def build_query(filters: str) -> str:
     where_clauses = []
     for col, vals in filters.get("filters", {}).items():
         if col not in allowed_columns:
-            print(f"⚠️ Ignorando columna no válida: {col}")
+            logger.warning("⚠️ Ignorando columna no válida: %s",col)
             continue
         if vals is None or vals == "":
             continue
@@ -127,7 +127,7 @@ def get_customer_list():
     WHERE sfdc_name_l3 IS NOT NULL
     """
     df = run_query(sql)
-    print("Succesfull customer list.")
+    logger.debug("Succesfull customer list.")
     return df
 
 def run_query(sql: str):
@@ -135,7 +135,7 @@ def run_query(sql: str):
         query_job = bq_client.query(sql)
         return query_job.to_dataframe()
     except Exception as e:
-        print(f"Error ejecutando query: {e}")
+        logger.debug("Error ejecutando query.")
         return pd.DataFrame()
 
 
@@ -156,10 +156,10 @@ def match_customers(mentioned_clients: list, all_customers: list, top_n: int = 1
             results = process.extract(name, all_customers, scorer=fuzz.token_sort_ratio, limit=top_n)
             for match_name, score, _ in results:
                 if score >= 85:
-                    print(f"{match_name}score: {score}")
+                    logger.debug("%s - score: %s", match_name, score)
                     exact_matches.add(match_name)
                 elif 55 <= score < 85:
-                    print(f"{match_name}score: {score}")
+                    logger.debug("%s - score: %s", match_name, score)
                     fuzzy_candidates.add(match_name)
 
         if exact_matches:
@@ -169,7 +169,7 @@ def match_customers(mentioned_clients: list, all_customers: list, top_n: int = 1
         else:
             return {"case": "not_found", "exact": [], "candidates": []}
     except Exception as e:
-        print("Error en match customers")
+        logger.error("Error en match customers")
         raise e
 
 """ FUTURA IMPLEMENTACION DE HILOS CONCURRENTES
@@ -189,11 +189,11 @@ def process_questionNew(user_question: str) -> None:
 
 def process_question(user_question: str) -> str:
     try:
-        print("User History: " + user_question)
+        logger.debug("User History: %s", user_question)
         queryable_json = call_claude_with_prompt(
             load_prompt("filter_messages.txt", user_input = user_question)
             )
-        print("🧠 Queryable JSON:", queryable_json)
+        logger.debug("🧠 Queryable JSON: %s", json.dumps(queryable_json))
         if (queryable_json["is_queryable"] == "no" or queryable_json["confirmation_required"] == "yes"):
             return(queryable_json["reply_to_user"])
         if (queryable_json["client_related"] == "yes"):
@@ -202,23 +202,26 @@ def process_question(user_question: str) -> str:
             mentioned = queryable_json.get("clients_mentioned") or []
             if mentioned:
                 matched = match_customers(mentioned, all_clients, top_n=10)
-                print("🔍 Matching result:", matched)
+                logger.debug("🔍 Matching result: %s", json.dumps(matched))
                 if matched["case"] == "direct_match":
+                    logger.debug("Found exact customers.")
                     customer_string = ", ".join(matched["exact"])
                     user_question += f"\n\nThese are the exact customers detected: {customer_string}"
                 elif matched["case"] == "ambiguous_match":
                     candidates = ", ".join(matched["candidates"])
+                    logger.debug("Found similar customers.")
                     return f"❓ I couldn’t find exact matches for those clients. Did you mean one of these?\n{candidates}"
                 elif matched["case"] == "not_found":
+                    logger.debug("No customer found.")
                     return "❌ I couldn’t find any customers matching that name. Could you rephrase or check the spelling?"
             else:
-                print("⚠️ No clients mentioned, proceeding normally.")
+                logger.debug("⚠️ No clients mentioned, proceeding normally.")
         filters_json = call_claude_with_prompt(load_prompt("query_filters.txt", user_input=user_question))
-        print("🧠 Filters created:",filters_json)
+        logger.debug("🧠 Filters created: %s",json.dumps(filters_json))
         sql = build_query(filters_json)
-        print(f"SQL generated:\n{sql}")
+        logger.debug(f"SQL generated:\n{sql}")
         df = run_query(sql)
-        print("Shape:", df.shape)
+        logger.debug("Shape:", df.shape)
         code_exec_result = run_code_execution(user_question, df) 
         output = format_for_slack(code_exec_result)
         return (

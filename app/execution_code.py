@@ -12,7 +12,7 @@ def run_code_execution(prompt: str, df: pd.DataFrame, model: str = "claude-sonne
         df.to_csv(tmp_file.name, index=False)
         tmp_path = tmp_file.name
     
-    print("file created at " + tmp_path)
+    logger.debug("file created at " + tmp_path)
 
     with open(tmp_path, "rb") as f:
         uploaded = claude.beta.files.upload(file=("data.csv", f, "text/csv"))
@@ -44,6 +44,6 @@ def run_code_execution(prompt: str, df: pd.DataFrame, model: str = "claude-sonne
             logger.error(f"Could not delete file: {e}")
         try:
             os.remove(tmp_path)
-            print("removed path")
+            logger.debug("removed path")
         except Exception as e:
             logger.error(f"could not delete path: {e}")
