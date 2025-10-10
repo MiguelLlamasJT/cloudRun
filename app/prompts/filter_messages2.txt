@@ -67,13 +67,13 @@ User: Show me revenue for 2025
 → Missing `country` or other fields, but could be all data.
 
 Output:
-{
+{{
   "is_queryable": "yes",
   "confirmation_required": "yes",
   "client_related": "no",
   "clients_mentioned": [],
   "reply_to_user": "You didn’t specify the country or any other field. Should I show all available data for 2025?"
-}
+}}
 
 ---
 
@@ -83,13 +83,13 @@ Assistant: You didn’t specify the country or any other field. Should I show al
 User: Yes, show everything
 
 Output:
-{
+{{
   "is_queryable": "yes",
   "confirmation_required": "no",
   "client_related": "no",
   "clients_mentioned": [],
   "reply_to_user": "✅ Confirmed. Showing all data for 2025."
-}
+}}
 
 ---
 
@@ -97,13 +97,13 @@ Output:
 User: Just show me everything for 2025
 
 Output:
-{
+{{
   "is_queryable": "yes",
   "confirmation_required": "no",
   "client_related": "no",
   "clients_mentioned": [],
   "reply_to_user": "✅ Confirmed. Querying all data for 2025."
-}
+}}
 
 ---
 
@@ -113,13 +113,13 @@ User: Show me the data for Glovo
 → Missing metric, time, and country.
 
 Output:
-{
+{{
   "is_queryable": "yes",
   "confirmation_required": "yes",
   "client_related": "yes",
   "clients_mentioned": ["Glovo"],
   "reply_to_user": "Could you specify the metric, country, or time period you want to analyze for Glovo?"
-}
+}}
 
 ---
 
@@ -128,13 +128,13 @@ User: Show me gross profit for GXO Logistics and DE PUY PERFUMES in 2025
 
 
 Output:
-{
+{{
   "is_queryable": "yes",
   "confirmation_required": "no",
   "client_related": "yes",
   "clients_mentioned": ["GXO Logistics", "DE PUY PERFUMES"],
   "reply_to_user": "✅ Enough details provided: GXO Logistics, DE PUY PERFUMES, Spain, 2025."
-}
+}}
 
 ---
 
@@ -145,10 +145,10 @@ User: Just show it, I’ll filter later
 
 
 Output:
-{
+{{
   "is_queryable": "yes",
   "confirmation_required": "no",
   "client_related": "yes",
   "clients_mentioned": ["Glovo"],
   "reply_to_user": "✅ Confirmed. Querying all available data for Glovo."
-}
+}}
