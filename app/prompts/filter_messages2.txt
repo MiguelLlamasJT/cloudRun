@@ -60,7 +60,7 @@ Return **ONLY valid JSON**, with no text or explanations, exactly in this format
   "reply_to_user": "message to send back to the Slack user"
 }}
 
-### Examples with conversation history
+[EXAMPLES]
 
 #### Example 1 — Missing confirmation
 User: Show me revenue for 2025

@@ -75,6 +75,7 @@ def call_claude_with_prompt(prompt: str) -> str:
             messages=[{"role": "user", "content": prompt}]
         )
         output = response.content[0].text
+        logger.debug(output)
         safe_json = safe_json_parse(output)
         logger.debug(safe_json)
         input_tokens = "\n\nInput tokens: " + str(response.usage.input_tokens)
