@@ -4,7 +4,7 @@ import pandas as pd
 from threading import Event
 from concurrent.futures import ThreadPoolExecutor
 from app import claude, logger
-from app.utils_slack.slack_utils import send_thinking_messages
+
 
 def run_code_execution(prompt: str, df: pd.DataFrame, channel: str, user: str, threadts: str, model: str = "claude-sonnet-4-20250514") -> str:
     if df.empty:
@@ -19,26 +19,23 @@ def run_code_execution(prompt: str, df: pd.DataFrame, channel: str, user: str, t
     stop_event = Event()
     
     try:
+        thinking = claude.chat_postMessage(channel=channel, thread_ts=threadts, text="💭 Thinking...")
+        thinking_ts = thinking["ts"]
         with open(tmp_path, "rb") as f:
             uploaded = claude.beta.files.upload(file=("data.csv", f, "text/csv"))
-        with ThreadPoolExecutor(max_workers=2) as executor:
-            future_claude = executor.submit(claude.beta.messages.create,
-                model=model,
-                betas=["code-execution-2025-08-25", "files-api-2025-04-14", "context-1m-2025-08-07"],
-                max_tokens=4096,
-                messages=[{
-                    "role": "user",
-                    "content": [
-                        {"type": "text", "text": "Based on the attached file and the provided prompt, generate an answer that is concise (approximately 60-per-cent condensed) but still retains essential details, in response to the following question:" + prompt},
-                        {"type": "container_upload", "file_id": uploaded.id}
-                    ]
-                }],
-                tools=[{"type": "code_execution_20250825", "name": "code_execution"}]
-            )
-            future_typing = executor.submit(send_thinking_messages, channel, user, threadts, stop_event)
-            response = future_claude.result()
-            stop_event.set()
-            time.sleep(1)
+        response = claude.beta.messages.create(
+            model=model,
+            betas=["code-execution-2025-08-25", "files-api-2025-04-14", "context-1m-2025-08-07"],
+            max_tokens=4096,
+            messages=[{
+                "role": "user",
+                "content": [
+                    {"type": "text", "text": "Based on the attached file and the provided prompt, generate an answer that is concise (approximately 60-per-cent condensed) but still retains essential details, in response to the following question:" + prompt},
+                    {"type": "container_upload", "file_id": uploaded.id}
+                ]
+            }],
+            tools=[{"type": "code_execution_20250825", "name": "code_execution"}]
+        )
         
         logger.debug(response)
 
@@ -49,7 +46,7 @@ def run_code_execution(prompt: str, df: pd.DataFrame, channel: str, user: str, t
         logger.debug("code execution did not fail")
         input_tokens = "\n\nInput tokens: " + str(response.usage.input_tokens)
         logger.debug(input_tokens)
-        return output_text + input_tokens
+        return output_text + input_tokens, thinking_ts
     finally:
         try:
             claude.beta.files.delete(uploaded.id)

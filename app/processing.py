@@ -5,6 +5,7 @@ from pathlib import Path
 from rapidfuzz import fuzz, process
 from starlette.concurrency import run_in_threadpool
 from app import claude, bq_client, PROMPTS_PATH, logger
+from app.utils_slack.slack_utils import send_message, update_message
 
 """. USAR ESTO PARA LLAMADAS I/O, no para procesamiento como pandas, para eso usar ProcessPoolExecutor
 from concurrent.futures import ThreadPoolExecutor //Para esto hacen falta 2 CPUs, solo tengo una
@@ -204,7 +205,8 @@ def process_question(user_question: str, channel:str, user:str, threadts: str) -
             )
         logger.debug("🧠 Queryable JSON: %s", json.dumps(queryable_json))
         if (queryable_json["is_queryable"] == "no" or queryable_json["confirmation_required"] == "yes"):
-            return(queryable_json["reply_to_user"])
+            send_message(queryable_json["reply_to_user"])
+            return
         if (queryable_json["client_related"] == "yes"):
             df_clients = get_customer_list()
             all_clients = df_clients["sfdc_name_l3"].dropna().astype(str).tolist()
@@ -219,10 +221,12 @@ def process_question(user_question: str, channel:str, user:str, threadts: str) -
                 elif matched["case"] == "ambiguous_match":
                     candidates = ", ".join(matched["candidates"])
                     logger.debug("Found similar customers.")
-                    return f"❓ I couldn’t find exact matches for those clients. Did you mean one of these?\n{candidates}"
+                    send_message(channel,f"❓ I couldn’t find exact matches for those clients. Did you mean one of these?\n{candidates}" ,threadts)
+                    return
                 elif matched["case"] == "not_found":
                     logger.debug("No customer found.")
-                    return "❌ I couldn’t find any customers matching that name. Could you rephrase or check the spelling?"
+                    send_message(channel, "❌ I couldn’t find any customers matching that name. Could you rephrase or check the spelling?",threadts)
+                    return
             else:
                 logger.debug("⚠️ No clients mentioned, proceeding normally.")
         filters_json = call_claude_with_prompt(load_prompt(PROMPTS_PATH + "query_filters.txt", user_input=user_question))
@@ -231,13 +235,10 @@ def process_question(user_question: str, channel:str, user:str, threadts: str) -
         logger.debug(f"SQL generated:\n{sql}")
         df = run_query(sql)
         logger.debug("Shape:", df.shape)
-        code_exec_result = run_code_execution(user_question, df, channel, user, threadts) 
+        code_exec_result, ts = run_code_execution(user_question, df, channel, user, threadts) 
         output = format_for_slack(code_exec_result)
-        return (
-            #f"Filtros: {filters_json}\n\n"
-            #f"Resultados (primeras filas):\n{df.head(5).to_string(index=False)}\n\n"
-            f"{output}"
-        )
+        update_message(channel, ts, output)
 
     except Exception as e:
-        return f"Error procesando la pregunta: {e}"
+        send_message(channel,f"Error procesando la pregunta: {e}",threadts)
+        

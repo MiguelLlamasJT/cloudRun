@@ -60,11 +60,10 @@ def send_message(channel, text, thread_ts=None):
         logger.error(f"❌ Error al enviar mensaje: {e.response['error']}")
         return None
 
-def update_message(channel: str, ts: str, threadts:str, new_text: str):
+def update_message(channel: str, ts: str, new_text: str):
     try:
         response = client.chat_update(
             channel=channel,
-            thread_ts = threadts,
             ts=ts,
             text=new_text
         )
