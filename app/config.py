@@ -8,27 +8,36 @@ from google.cloud import bigquery
 
 
 load_dotenv()
+
 # === CONFIG GLOBAL DE LOGGING ===
-LOG_LEVEL = logging.DEBUG  # o usa logging.INFO si prefieres
+LOG_LEVEL = logging.DEBUG
 
 FORMATTER = "[%(levelname)s] %(name)s.%(funcName)s():Line %(lineno)d → %(message)s"
 
-# Limpia handlers previos para evitar duplicados
 root_logger = logging.getLogger()
 root_logger.handlers.clear()
 root_logger.setLevel(LOG_LEVEL)
 
-# Crea el handler único
+
 console_handler = logging.StreamHandler(sys.stdout)
 console_handler.setFormatter(logging.Formatter(FORMATTER))
 console_handler.setLevel(LOG_LEVEL)
 
 root_logger.addHandler(console_handler)
-
-# Este es el logger global que exportas
 logger = logging.getLogger("FPA")
 
-""" CONFIGURACION CON SEVERITY PARA PRODUCCION
+for noisy_logger in [
+    "anthropic",
+    "httpx",
+    "urllib3",
+    "google",
+    "google.cloud",
+    "uvicorn",
+    "fastapi"
+]:
+    logging.getLogger(noisy_logger).setLevel(logging.WARNING)
+
+""" CONFIGURACION CON SEVERITY, serviria PARA PRODUCCION
 logging.basicConfig(
     level=logging.DEBUG,  # Nivel mínimo de log mostrado
     format="[%(levelname)s] %(name)s.%(funcName)s():Line %(lineno)d → %(message)s",
