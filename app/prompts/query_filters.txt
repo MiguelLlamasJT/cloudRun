@@ -81,7 +81,7 @@ JSON:
     "data_week": ["CURRENT", "PREVIOUS"],
     "month": ["2025-01-01","2025-02-01","2025-03-01"]
   }},
-  "metrics" : ["data_week", "sfdc_name_l3","am_name_l3", "country", "service_type_l3", "month", "customer_type", "revenue", "gross_profit", "data_type", "cohort"]
+  "metrics" : ["data_week", "country", "service_type_l3", "month", "revenue", "gross_profit"]
 }}
 
 
@@ -101,6 +101,22 @@ JSON:
     "month": ["2025-01-01","2025-02-01","2025-03-01","2025-04-01","2025-05-01","2025-06-01","2025-07-01","2025-08-01","2025-09-01","2025-10-01", "2025-11-01","2025-12-01"]
   }},
   "metrics" : ["data_week", "sfdc_name_l3","am_name_l3", "country", "service_type_l3", "month", "customer_type", "revenue", "gross_profit", "data_type", "cohort"]
+}}
+
+
+### Example: Metrics not mentioned
+User: I need Spain revenue
+Chatbot "Do you need any specific categories, such as Staffing/Outsourcing, customer types, actuals/forecast, cohort or time period? Or, by client or account manager?"
+User: Just spain revenue for 2025 thanks.
+
+JSON:
+{{
+  "filters": {{
+    "country": "ES",
+    "data_week": ["CURRENT"],
+    "month": ["2025-01-01","2025-02-01","2025-03-01","2025-04-01","2025-05-01","2025-06-01","2025-07-01","2025-08-01","2025-09-01","2025-10-01", "2025-11-01","2025-12-01"]
+  }},
+  "metrics" : ["country", "month", "revenue"]
 }}
 ---
 
