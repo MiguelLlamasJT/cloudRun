@@ -205,7 +205,7 @@ def process_question(user_question: str, channel:str, user:str, threadts: str) -
             )
         logger.debug("🧠 Queryable JSON: %s", json.dumps(queryable_json))
         if (queryable_json["is_queryable"] == "no" or queryable_json["confirmation_required"] == "yes"):
-            send_message(queryable_json["reply_to_user"])
+            send_message(channel, queryable_json["reply_to_user"], threadts)
             return
         if (queryable_json["client_related"] == "yes"):
             df_clients = get_customer_list()
