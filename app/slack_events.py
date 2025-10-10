@@ -43,5 +43,5 @@ def handler(body: dict):
         return
 
     thread_text = get_thread_history(channel, thread_ts)
-    process_question(thread_text, channel, user, thread_text)
+    process_question(thread_text, channel, user, thread_ts)
     return
