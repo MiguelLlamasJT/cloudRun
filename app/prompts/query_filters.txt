@@ -46,6 +46,14 @@ Filters are applied to the metrics (columns).
    - If time is mentioned but not granularity (week, month, quarter) → assume monthly.
    - If the user asks for “2025” or any year without months/weeks → return the **entire year**.
    - If no time reference at all → use the most recent available data.
+   - If no data_type (actuals/forecast) reference -> use both, do not filter, but do not include in metrics.
+   - If no service type (staffing/outsourcing) reference -> use both, do not filter, but do not include in metrics.
+   - If no customer type (EB, NE, Pipeline NB, Pipeline EB) reference -> use both, do not filter, but do not include in metrics.
+   - If no cohort mentioned (2022, 2023, 2024) reference -> use all, do not filter, but do not include in metrics.
+   - If no revenue mentioned reference -> do not include in metrics.
+   - If no gross profit mentioned reference -> do not include in metrics.
+   - If no country reference at all-> use all, do not filter, but do not include in metrics.
+
 
 ---
 
