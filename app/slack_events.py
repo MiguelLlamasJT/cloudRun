@@ -1,10 +1,9 @@
-import logging
 import json
 from app.utils_slack.validators import is_valid_slack_event, is_authorized_user
 from app.utils_slack.slack_utils import get_thread_history, send_message
 from app.processing import process_question
+from app import logger
 
-logger = logging.getLogger(__name__)
 processed_events = set()
 
 def handler(body: dict):

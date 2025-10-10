@@ -4,10 +4,7 @@ from app.execution_code import run_code_execution
 from pathlib import Path
 from rapidfuzz import fuzz, process
 from starlette.concurrency import run_in_threadpool
-from app import claude, bq_client, PROMPTS_PATH
-
-import logging
-logger = logging.getLogger(__name__)
+from app import claude, bq_client, PROMPTS_PATH, logger
 
 """. USAR ESTO PARA LLAMADAS I/O, no para procesamiento como pandas, para eso usar ProcessPoolExecutor
 from concurrent.futures import ThreadPoolExecutor //Para esto hacen falta 2 CPUs, solo tengo una

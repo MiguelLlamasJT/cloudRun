@@ -1,8 +1,7 @@
 import os
 from datetime import datetime
 import requests
-import logging
-logger = logging.getLogger(__name__)
+from app import logger
 
 SLACK_BOT_TOKEN = os.environ.get("SLACK_BOT_TOKEN")
 

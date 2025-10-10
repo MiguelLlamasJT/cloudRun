@@ -1,9 +1,6 @@
 import os, tempfile
 import pandas as pd
-from app import claude
-import logging
-logger = logging.getLogger(__name__)
-
+from app import claude, logger
 
 def run_code_execution(prompt: str, df: pd.DataFrame, model: str = "claude-sonnet-4-20250514") -> str:
     if df.empty:
