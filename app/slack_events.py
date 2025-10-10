@@ -1,6 +1,6 @@
 import logging, json
-from app.utils.validators import is_valid_slack_event, is_authorized_user
-from app.utils.slack_utils import get_thread_history, send_message
+from app.utils_slack.validators import is_valid_slack_event, is_authorized_user
+from app.utils_slack.slack_utils import get_thread_history, send_message
 from app.processing import process_question
 
 logger = logging.getLogger(__name__)

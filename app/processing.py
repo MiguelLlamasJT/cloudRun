@@ -191,7 +191,7 @@ def process_question(user_question: str) -> str:
     try:
         logger.debug("User History: %s", user_question)
         queryable_json = call_claude_with_prompt(
-            load_prompt("prompts/filter_messages.txt", user_input = user_question)
+            load_prompt("/app/app/prompts/filter_messages.txt", user_input = user_question)
             )
         logger.debug("🧠 Queryable JSON: %s", json.dumps(queryable_json))
         if (queryable_json["is_queryable"] == "no" or queryable_json["confirmation_required"] == "yes"):
@@ -216,7 +216,7 @@ def process_question(user_question: str) -> str:
                     return "❌ I couldn’t find any customers matching that name. Could you rephrase or check the spelling?"
             else:
                 logger.debug("⚠️ No clients mentioned, proceeding normally.")
-        filters_json = call_claude_with_prompt(load_prompt("prompts/query_filters.txt", user_input=user_question))
+        filters_json = call_claude_with_prompt(load_prompt("/app/app/prompts/query_filters.txt", user_input=user_question))
         logger.debug("🧠 Filters created: %s",json.dumps(filters_json))
         sql = build_query(filters_json)
         logger.debug(f"SQL generated:\n{sql}")
