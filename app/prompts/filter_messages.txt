@@ -37,7 +37,6 @@ set `"confirmation_required": "yes"`.
 Ask for clarification **once only** — if the user repeats or insists, proceed.
 
 
-
 ### Confirmation rules
 
 Before querying, the user must confirm that any of these missing fields are *intentionally omitted*:

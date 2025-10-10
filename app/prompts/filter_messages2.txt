@@ -51,7 +51,10 @@ set `"confirmation_required": "yes"` and ask for clarification before proceeding
 
 
 [OUTPUT]
-Return **ONLY valid JSON**, with no text or explanations, exactly in this format:
+Return ONLY a valid JSON object, with no extra text, explanations, or formatting.
+The response must start with '{' and end with '}'.
+Do not include Markdown, code fences, or any commentary.
+The template:
 {{
   "is_queryable": "yes"|"no",
   "confirmation_required": "yes"|"no",
