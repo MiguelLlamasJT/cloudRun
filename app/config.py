@@ -29,6 +29,7 @@ logger = logging.getLogger("FPA")
 for noisy_logger in [
     "anthropic",
     "httpx",
+    "httpcore",
     "urllib3",
     "google",
     "google.cloud",
