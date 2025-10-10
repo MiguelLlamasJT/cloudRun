@@ -7,3 +7,4 @@ anthropic
 openai
 db-dtypes
 rapidfuzz
+slack_sdk

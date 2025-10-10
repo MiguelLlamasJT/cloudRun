@@ -186,7 +186,7 @@ def process_questionNew(user_question: str) -> None:
     asyncio.run_coroutine_threadsafe(procesar_async(user_question), loop)
 """
 
-def process_question(user_question: str) -> str:
+def process_question(user_question: str, channel:str, user:str, threadts: str) -> str:
     try:
         logger.debug("User History: %s", user_question)
         queryable_json = call_claude_with_prompt(
@@ -221,7 +221,7 @@ def process_question(user_question: str) -> str:
         logger.debug(f"SQL generated:\n{sql}")
         df = run_query(sql)
         logger.debug("Shape:", df.shape)
-        code_exec_result = run_code_execution(user_question, df) 
+        code_exec_result = run_code_execution(user_question, df, channel, user, threadts) 
         output = format_for_slack(code_exec_result)
         return (
             #f"Filtros: {filters_json}\n\n"
