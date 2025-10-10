@@ -52,7 +52,6 @@ set `"confirmation_required": "yes"` and ask for clarification before proceeding
 
 [OUTPUT]
 Return ONLY a valid JSON object, with no extra text, explanations, or formatting.
-The response must start with '{' and end with '}'.
 Do not include Markdown, code fences, or any commentary.
 The template:
 {{
