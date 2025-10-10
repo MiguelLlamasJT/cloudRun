@@ -1,4 +1,5 @@
-import logging, json
+import logging
+import json
 from app.utils_slack.validators import is_valid_slack_event, is_authorized_user
 from app.utils_slack.slack_utils import get_thread_history, send_message
 from app.processing import process_question
@@ -15,13 +16,14 @@ def handler(body: dict):
     event_id = body.get("event_id")
 
     if not is_valid_slack_event(event):
+        logger.info(event)
         logger.warning("Invalid or non-message event")
-        return {"ok": True}
+        return
 
     # Evita reprocesar el mismo evento
     if event_id in processed_events:
         logger.warning("Duplicate event: %s", event_id)
-        return {"ok": True}
+        return
     processed_events.add(event_id)
 
     logger.debug("Processing event: %s", json.dumps(event))
@@ -34,14 +36,14 @@ def handler(body: dict):
 
     if not text:
         logger.debug("Empty message (edited or deleted)")
-        return {"ok": True}
+        return
 
     if not is_authorized_user(user):
         logger.warning("Unauthorized user: %s", user)
         send_message(channel, "Usuario no autorizado.", thread_ts)
-        return {"ok": True}
+        return
 
     thread_text = get_thread_history(channel, thread_ts)
     result_text = process_question(thread_text)
     send_message(channel, result_text, thread_ts)
-    return {"ok": True}
+    return
