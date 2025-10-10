@@ -6,7 +6,7 @@ from concurrent.futures import ThreadPoolExecutor
 from app import claude, logger
 from app.utils_slack.slack_utils import send_message
 
-def run_code_execution(prompt: str, df: pd.DataFrame, channel: str, user: str, threadts: str, model: str = "claude-3-5-haiku-latest") -> str:  #claude-3-5-haiku-latest claude-sonnet-4-20250514
+def run_code_execution(prompt: str, df: pd.DataFrame, channel: str, user: str, threadts: str, model: str = "claude-sonnet-4-20250514") -> str:  #claude-3-5-haiku-latest claude-sonnet-4-20250514
     if df.empty:
         return("No data available.")
     with tempfile.NamedTemporaryFile(mode="w+", suffix=".csv", delete=False) as tmp_file:
