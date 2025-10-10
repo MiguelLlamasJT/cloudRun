@@ -18,9 +18,17 @@ await loop.run_inexecutor(custom_thread_pool, func, *args, **kwargs)
 """
 
 def load_prompt(file_name: str, **kwargs) -> str:
-    path = Path(file_name)
-    text = path.read_text(encoding="utf-8")
-    return text.format(**kwargs)
+    try:
+        path = Path(file_name)
+        logger.info("leido file")
+        text = path.read_text(encoding="utf-8")
+        logger.info("leido texto")
+        final_text = text.format(**kwargs)
+        logger.info("formateado texto")
+        return final_text
+    except Exception as e:
+        logger.debug("Fallo en cargar prompt")
+        raise
 
 def get_current_and_last_monday():
     today = datetime.date.today()
