@@ -54,4 +54,3 @@ def run_code_execution(prompt: str, df: pd.DataFrame, channel: str, user: str, t
             logger.debug("removed path")
         except Exception as e:
             logger.error(f"could not delete path: {e}")
-        stop_event.set()
