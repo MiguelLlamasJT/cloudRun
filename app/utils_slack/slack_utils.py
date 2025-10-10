@@ -54,7 +54,7 @@ def send_message(channel, text, thread_ts=None):
             thread_ts=thread_ts
         )
         logger.info(f"✅ Mensaje enviado a {channel}: {response['ts']}")
-        return response.data
+        return response["ts"]
 
     except SlackApiError as e:
         logger.error(f"❌ Error al enviar mensaje: {e.response['error']}")
