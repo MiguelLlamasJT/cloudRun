@@ -21,7 +21,7 @@ def run_code_execution(prompt: str, df: pd.DataFrame, model: str = "claude-sonne
             messages=[{
                 "role": "user",
                 "content": [
-                    {"type": "text", "text": "Using the info in the file provided: " + prompt},
+                    {"type": "text", "text": "Based on the attached file and the provided prompt, generate an answer that is concise (approximately 60-per-cent condensed) but still retains essential details, in response to the following question:" + prompt},
                     {"type": "container_upload", "file_id": uploaded.id}
                 ]
             }],

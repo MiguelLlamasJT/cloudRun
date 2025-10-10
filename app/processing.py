@@ -224,7 +224,7 @@ def process_question(user_question: str) -> str:
         return (
             #f"Filtros: {filters_json}\n\n"
             #f"Resultados (primeras filas):\n{df.head(5).to_string(index=False)}\n\n"
-            f"Code Execution:\n{output}"
+            f"{output}"
         )
 
     except Exception as e:
