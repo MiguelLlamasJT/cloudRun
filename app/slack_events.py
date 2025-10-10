@@ -8,7 +8,7 @@ processed_events = set()
 
 def handler(body: dict):
     if body.get("type") == "url_verification":
-        logger.info("Verification request from Slack")
+        logger.debug("Verification request from Slack")
         return body["challenge"]
 
     event = body.get("event", {})
@@ -24,7 +24,7 @@ def handler(body: dict):
         return {"ok": True}
     processed_events.add(event_id)
 
-    logger.info("Processing event: %s", json.dumps(event))
+    logger.debug("Processing event: %s", json.dumps(event))
     user, channel, text, thread_ts = (
         event.get("user"),
         event.get("channel"),
@@ -42,6 +42,6 @@ def handler(body: dict):
         return {"ok": True}
 
     thread_text = get_thread_history(channel, thread_ts)
-    result_text = process_question(channel, thread_text, thread_ts)
+    result_text = process_question(thread_text)
     send_message(channel, result_text, thread_ts)
     return {"ok": True}
