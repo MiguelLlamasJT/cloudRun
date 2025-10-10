@@ -22,7 +22,7 @@ def run_code_execution(prompt: str, df: pd.DataFrame, channel: str, user: str, t
         with open(tmp_path, "rb") as f:
             uploaded = claude.beta.files.upload(file=("data.csv", f, "text/csv"))
         with ThreadPoolExecutor(max_workers=2) as executor:
-            future_claude = executor.submit(claude.beta.messages.create(
+            future_claude = executor.submit(claude.beta.messages.create,
                 model=model,
                 betas=["code-execution-2025-08-25", "files-api-2025-04-14", "context-1m-2025-08-07"],
                 max_tokens=4096,
@@ -34,7 +34,7 @@ def run_code_execution(prompt: str, df: pd.DataFrame, channel: str, user: str, t
                     ]
                 }],
                 tools=[{"type": "code_execution_20250825", "name": "code_execution"}]
-            ))
+            )
             future_typing = executor.submit(send_thinking_messages, channel, user, threadts, stop_event)
             response = future_claude.result()
             stop_event.set()

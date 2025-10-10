@@ -96,6 +96,7 @@ def add_reaction(channel: str, ts: str, threadts:str, emoji: str):
         return None
     
 def send_thinking_messages(channel, user, threadts, stop_event):
+    i = 0
     while not stop_event.is_set():
         try:
             client.chat_postEphemeral(channel=channel, user=user, thread_ts=threadts, text="Thinking...")
