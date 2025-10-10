@@ -43,6 +43,6 @@ def handler(body: dict):
         return
 
     thread_text = get_thread_history(channel, thread_ts)
-    result_text = process_question(thread_text)
+    result_text = process_question(thread_text, channel, user, thread_text)
     send_message(channel, result_text, thread_ts)
     return
