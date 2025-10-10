@@ -67,5 +67,5 @@ root.addHandler(handler)
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
 PROMPTS_PATH = "/app/app/prompts/"
 claude = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
-AUTHORIZED_USERS = ["U06BW8J6MRU" "U031RNA3J86", "U01BECSBLJ1", "U02CYBAR4JY"] #miguel, gon, gato, dani
+AUTHORIZED_USERS = ["U06BW8J6MRU", "U031RNA3J86", "U01BECSBLJ1", "U02CYBAR4JY"] #miguel, gon, gato, dani
 bq_client = bigquery.Client()
