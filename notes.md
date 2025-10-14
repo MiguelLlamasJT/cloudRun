@@ -11,3 +11,7 @@ Sobre Slack:
 
 De los threads:
 - Yo necesito el async original para manejar distintas requests a la vez, y luego el background para poder responder primero y luego ejecutar, esto es lo que diferencia a background de async, y luego seria bueno meter hilos para tareas simultaneas de I/O, como runear la query y llamar al primer llm, o si hay dos llms simultaneos.
+
+
+Para bajar coste:
+- Definir en el backend que operaciones puede hacer tu modelo y hacer los calculos sobre la query que tiras uno mismo en el backend, centrarse solo en select metrics y where clauses, y que te diga la operacion a realizar o incluso varias operaciones a realizar, despues pasarselo de nuevo al modelo para que de una respuesta en lenguaje natural.

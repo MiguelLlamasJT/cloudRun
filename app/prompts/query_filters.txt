@@ -37,11 +37,12 @@ Filters are applied to the metrics (columns).
 5. **Temporal logic:**
    - If the user mentions a **specific year (e.g. 2024, 2025)** → include the full year.
    - If no year is mentioned → use the **most recent year available**.
-   - If no week is mentioned -> use only the most recent week
-   - If the user says "last week" → include previous `data_week`.
-   - If the user says "this week" → include current `data_week`.
-   - If the user says "WoW variations" → include both current and previous `data_week`.
+   - If no week is mentioned -> use only the most recent week "CURRENT"
+   - If the user says "last week" → include "PREVIOUS" `data_week`.
+   - If the user says "this week" → include "CURRENT" `data_week`.
+   - If the user says "WoW variations" → include both "CURRENT" and "PREVIOUS" `data_week`.
    - If the user says "month" or "quarter" → infer the relevant months within the given period or year.
+   - If the user says "YoY" (year over year) → infer the relevant months within the given period of both 2024, and 2025 years.
 6. **Default behavior:**
    - If time is mentioned but not granularity (week, month, quarter) → assume monthly.
    - If the user asks for “2025” or any year without months/weeks → return the **entire year**.
