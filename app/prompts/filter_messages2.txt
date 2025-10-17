@@ -11,7 +11,8 @@ is ready to query or if more clarification is needed.
 Each row represents pre-aggregated financial data at the customer × month/week level.
 
 Available columns:
-- date_week: current (wk0), previous (wk-1)
+- date_week: (DATE)'YYYY-MM-DD': snapshot week (always a Monday)
+- week_label: wk0, wk-1
 - salesforce name : client name
 - month: month of the year
 - country (BE, CO, DE, ES, FR, NO, PT, SE, UK, US)
