@@ -265,7 +265,7 @@ def call_claude_simple(user_question: str, df: pd.DataFrame) ->str:
             messages=[{"role": "user", "content": prompt}]
         )
     output = response.content[0].text
-    logger.debug(output)
+    #logger.debug(output)
     input_tokens = "\n\nInput tokens: " + str(response.usage.input_tokens)
     logger.debug(input_tokens)
     return output
