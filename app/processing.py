@@ -247,12 +247,13 @@ def call_claude_simple(user_question: str, df: pd.DataFrame) ->str:
     Based on the dataset, answer the question clearly and accurately.
     """
     response = claude.messages.create(
-            model="claude-3-5-haiku-latest", 
+            model="claude-sonnet-4-20250514", 
             max_tokens=1000,
             messages=[{"role": "user", "content": prompt}]
         )
     output = response.content[0].text
-    logger.info(output)
+    input_tokens = "\n\nInput tokens: " + str(response.usage.input_tokens)
+    logger.debug(input_tokens)
     return output
 
 def process_question(user_question: str, channel:str, user:str, threadts: str) -> str:
@@ -301,7 +302,7 @@ def process_question(user_question: str, channel:str, user:str, threadts: str) -
         else:
             code_exec_result = call_claude_simple(user_question, df)
             output = format_for_slack(code_exec_result)
-            send_message(channel, queryable_json["reply_to_user"], threadts)
+            send_message(channel, output, threadts)
         
 
     except Exception as e:
