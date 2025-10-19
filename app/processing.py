@@ -128,16 +128,18 @@ def build_query(filters: str) -> str:
 def build_query_v2(filters: str) -> str:
     
     metrics = filters.get("metrics")
-    select_metrics = ""
+    select_metrics = []
+    group_by = []
     i = 0
     while i < len(metrics):
-        if (metrics[i] is "revenue" or "gross profit"):
-            select_metrics += f"SUM({metrics[i]}) AS {metrics[i]}"
+        if (metrics[i] in ( "revenue", "gross profit")):
+            select_metrics.append(f"SUM({metrics[i]}) AS {metrics[i]}")
         else:
-            select_metrics += f"{metrics[i]}"
-        if (i is not len(metrics) - 1):
-            select_metrics+= ", "
+            select_metrics.append(f"{metrics[i]}")
+            group_by.append(f"{metrics[i]}")
         i+=1
+    select_metrics = ", ".join(select_metrics)
+    group_by = ", ".join(group_by)
 
     allowed_columns = {
         "data_week", "week_label", "sfdc_name_l3", "am_name_l3", "country",
@@ -160,6 +162,7 @@ def build_query_v2(filters: str) -> str:
     SELECT {select_metrics}
     FROM `jt-prd-financial-pa.random_data.real_data`
     WHERE {where_clause}
+    GROUP BY {group_by}
     ORDER BY country, month;
     """
     return sql
@@ -267,7 +270,8 @@ def process_question(user_question: str, channel:str, user:str, threadts: str) -
                 logger.debug("⚠️ No clients mentioned, proceeding normally.")
         filters_json = call_claude_with_prompt(load_prompt(PROMPTS_PATH + "query_filters.txt", user_input=user_question))
         logger.debug("🧠 Filters created: %s",json.dumps(filters_json))
-        sql = build_query(filters_json)
+        #sql = build_query(filters_json)
+        sql = build_query_v2(filters_json)
         logger.debug(f"SQL generated:\n{sql}")
         df = run_query(sql)
         logger.debug("Shape:", df.shape)
