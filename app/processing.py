@@ -252,6 +252,7 @@ def call_claude_simple(user_question: str, df: pd.DataFrame) ->str:
             messages=[{"role": "user", "content": prompt}]
         )
     output = response.content[0].text
+    logger.info(output)
     return output
 
 def process_question(user_question: str, channel:str, user:str, threadts: str) -> str:
