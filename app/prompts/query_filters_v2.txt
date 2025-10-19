@@ -14,7 +14,7 @@ Filters are applied to the metrics (columns).
 - country (STRING): country code (BE (belgium), CO (colombia), DE (germany), ES(spain), FR(france), NO(norway), PT(portugal), SE(sweden), UK(united kingdom), US(united states))
 - service_type_l3 (STRING): service type (Staffing or Outsourcing)
 - month (DATE): first day of the month
-- customer_type (STRING): EB, NE, Pipeline NB, Pipeline EB
+- customer_type (STRING): Existing Business, New Business, pipeline Existing Business, pipeline New Business
 - revenue (FLOAT)
 - gross_profit (FLOAT)
 - data_type (STRING): actuals or forecast
