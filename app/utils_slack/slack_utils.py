@@ -34,7 +34,7 @@ def get_thread_history(channel_id, thread_ts):
                 ts_readable = datetime.fromtimestamp(float(ts)).strftime("%Y-%m-%d %H:%M:%S")
             except Exception:
                 ts_readable = ts
-            formatted_messages.append(f"[{ts_readable}] {text}")
+            formatted_messages.append(f"    [{ts_readable}] {text}")
 
         return "\n".join(formatted_messages)
 

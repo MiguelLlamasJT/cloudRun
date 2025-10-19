@@ -130,6 +130,35 @@ def build_query(filters: str) -> str:
     """
     return sql
 
+def build_query_v2(filters: str) -> str:
+    
+    metrics = filters.get("metrics")
+    select_metrics = ", ".join([f"{m}" for m in metrics]) if metrics else "*"
+    allowed_columns = {
+        "data_week", "sfdc_name_l3", "am_name_l3", "country",
+        "service_type_l3", "month", "customer_type", "cohort", "data_type"
+    }
+    where_clauses = []
+    for col, vals in filters.get("filters", {}).items():
+        if col not in allowed_columns:
+            logger.warning("⚠️ Ignorando columna no válida: %s",col)
+            continue
+        if vals is None or vals == "":
+            continue
+        if isinstance(vals, (int, float, str)):
+            vals = [vals]
+        vals_sql = ", ".join([f"'{v}'" for v in vals])
+        where_clauses.append(f"{col} IN ({vals_sql})")
+    where_clause = " AND ".join(where_clauses) if where_clauses else "1=1"
+
+    sql = f"""
+    SELECT {select_metrics}
+    FROM `jt-prd-financial-pa.random_data.real_data`
+    WHERE {where_clause}
+    ORDER BY country, month;
+    """
+    return sql
+
 def get_customer_list():
     sql = """
     SELECT DISTINCT sfdc_name_l3
@@ -141,6 +170,8 @@ def get_customer_list():
     return df
 
 def run_query(sql: str):
+    max_tries = 3
+    current_tries = 0
     try:
         query_job = bq_client.query(sql)
         return query_job.to_dataframe()

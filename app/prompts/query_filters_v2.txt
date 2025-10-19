@@ -83,7 +83,7 @@ JSON:
     "week_label": ["w-0", "w-1"],
     "month": ["2025-01-01","2025-02-01","2025-03-01"]
   }},
-  "metrics" : ["data_week", "week_label", "country", "service_type_l3", "month", "revenue", "gross_profit"]
+  "metrics" : ["data_week", "country", "service_type_l3", "month", "revenue", "gross_profit"]
 }}
 
 
