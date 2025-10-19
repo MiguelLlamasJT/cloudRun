@@ -78,7 +78,7 @@ def safe_json_parse(text: str):
 
 def call_claude_with_prompt(prompt: str) -> str:
     try:
-        logger.debug(prompt)
+        #logger.debug(prompt)
         response = claude.messages.create(
             model="claude-3-5-haiku-latest", 
             max_tokens=1000,
@@ -252,6 +252,7 @@ def call_claude_simple(user_question: str, df: pd.DataFrame) ->str:
             messages=[{"role": "user", "content": prompt}]
         )
     output = response.content[0].text
+    logger.debug(output)
     input_tokens = "\n\nInput tokens: " + str(response.usage.input_tokens)
     logger.debug(input_tokens)
     return output
