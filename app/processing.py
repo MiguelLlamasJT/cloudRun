@@ -97,16 +97,11 @@ def call_claude_with_prompt(prompt: str) -> str:
     
         
 def build_query(filters: str) -> str:
-    try:
-        filters["filters"] = resolve_dataweek(filters.get("filters") or {})
-    except Exception as e:
-        logger.error("Fallo al procesar dataweek.")
-        raise
     
     metrics = filters.get("metrics")
     select_metrics = ", ".join([f"{m}" for m in metrics]) if metrics else "*"
     allowed_columns = {
-        "data_week", "sfdc_name_l3", "am_name_l3", "country",
+        "data_week", "sfdc_name_l3", "am_name_l3", "country", "week_label",
         "service_type_l3", "month", "customer_type", "cohort", "data_type"
     }
     where_clauses = []
@@ -133,9 +128,19 @@ def build_query(filters: str) -> str:
 def build_query_v2(filters: str) -> str:
     
     metrics = filters.get("metrics")
-    select_metrics = ", ".join([f"{m}" for m in metrics]) if metrics else "*"
+    select_metrics = ""
+    i = 0
+    while i < len(metrics):
+        if (metrics[i] is "revenue" or "gross profit"):
+            select_metrics += f"SUM({metrics[i]}) AS {metrics[i]}"
+        else:
+            select_metrics += f"{metrics[i]}"
+        if (i is not len(metrics) - 1):
+            select_metrics+= ", "
+        i+=1
+
     allowed_columns = {
-        "data_week", "sfdc_name_l3", "am_name_l3", "country",
+        "data_week", "week_label", "sfdc_name_l3", "am_name_l3", "country",
         "service_type_l3", "month", "customer_type", "cohort", "data_type"
     }
     where_clauses = []
