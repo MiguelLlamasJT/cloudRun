@@ -240,6 +240,19 @@ def call_claude_simple(user_question: str, df: pd.DataFrame) ->str:
     df_json = df.to_json(orient="records")
     prompt = f"""
     You are a data analyst. I will give you a question and a dataset in JSON format.
+    Available columns in source table:
+    - date_week: (DATE)'YYYY-MM-DD': snapshot week (always a Monday)
+    - week_label: wk0, wk-1
+    - salesforce name : client name
+    - month: month of the year
+    - country (BE, CO, DE, ES, FR, NO, PT, SE, UK, US)
+    - service type (Staffing or Outsourcing)
+    - customer type: (EB (existing business), NB (new business), Pipeline NB, Pipeline EB)
+    - cohort: year the client was signed
+    - data_type: (actuals, forecast)
+    - revenue
+    - gross_profit
+    - gross_margin (= gross_profit / revenue)
     Question:
     {user_question}
     Data (JSON):
