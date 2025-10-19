@@ -80,7 +80,7 @@ def call_claude_with_prompt(prompt: str) -> str:
     try:
         #logger.debug(prompt)
         response = claude.messages.create(
-            model="claude-3-5-haiku-latest", 
+            model="claude-haiku-4-5-20251001", 
             max_tokens=1000,
             messages=[{"role": "user", "content": prompt}]
         )
@@ -260,7 +260,7 @@ def call_claude_simple(user_question: str, df: pd.DataFrame) ->str:
     Based on the dataset, answer the question clearly and accurately.
     """
     response = claude.messages.create(
-            model="claude-sonnet-4-20250514", 
+            model="claude-sonnet-4-5-20250929", 
             max_tokens=1000,
             messages=[{"role": "user", "content": prompt}]
         )
