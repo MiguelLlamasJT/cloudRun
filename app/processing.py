@@ -236,6 +236,24 @@ def process_questionNew(user_question: str) -> None:
     asyncio.run_coroutine_threadsafe(procesar_async(user_question), loop)
 """
 
+def call_claude_simple(user_question: str, df: pd.DataFrame) ->str:
+    df_json = df.to_json(orient="records")
+    prompt = f"""
+    You are a data analyst. I will give you a question and a dataset in JSON format.
+    Question:
+    {user_question}
+    Data (JSON):
+    {df_json}
+    Based on the dataset, answer the question clearly and accurately.
+    """
+    response = claude.messages.create(
+            model="claude-3-5-haiku-latest", 
+            max_tokens=1000,
+            messages=[{"role": "user", "content": prompt}]
+        )
+    output = response.content[0].text
+    return output
+
 def process_question(user_question: str, channel:str, user:str, threadts: str) -> str:
     try:
         logger.debug("User History: %s", user_question)
@@ -275,7 +293,11 @@ def process_question(user_question: str, channel:str, user:str, threadts: str) -
         logger.debug(f"SQL generated:\n{sql}")
         df = run_query(sql)
         logger.debug("Shape:", df.shape)
-        code_exec_result, ts = run_code_execution(user_question, df, channel, user, threadts) 
+        if (df.shape[0] > 100):
+            code_exec_result, ts = run_code_execution(user_question, df, channel, user, threadts)
+        else:
+            code_exec_result = call_claude_simple(user_question, df)
+            ts = threadts
         output = format_for_slack(code_exec_result)
         update_message(channel, ts, output)
 
