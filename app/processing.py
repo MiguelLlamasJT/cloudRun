@@ -295,11 +295,13 @@ def process_question(user_question: str, channel:str, user:str, threadts: str) -
         logger.debug("Shape:", df.shape)
         if (df.shape[0] > 100):
             code_exec_result, ts = run_code_execution(user_question, df, channel, user, threadts)
+            output = format_for_slack(code_exec_result)
+            update_message(channel, ts, output)
         else:
             code_exec_result = call_claude_simple(user_question, df)
-            ts = threadts
-        output = format_for_slack(code_exec_result)
-        update_message(channel, ts, output)
+            output = format_for_slack(code_exec_result)
+            send_message(channel, queryable_json["reply_to_user"], threadts)
+        
 
     except Exception as e:
         send_message(channel,f"Error procesando la pregunta: {e}",threadts)
