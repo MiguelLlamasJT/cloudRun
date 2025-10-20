@@ -280,7 +280,7 @@ def process_question(user_question: str, channel:str, user:str, threadts: str) -
         if (queryable_json["is_queryable"] == "no" or queryable_json["confirmation_required"] == "yes"):
             send_message(channel, queryable_json["reply_to_user"], threadts)
             return
-        ts = send_message(channel=channel, thread_ts=threadts, text="💭 Thinking...")
+        threadts = send_message(channel=channel, thread_ts=threadts, text="💭 Thinking...")
         if (queryable_json["client_related"] == "yes"):
             df_clients = get_customer_list()
             all_clients = df_clients["sfdc_name_l3"].dropna().astype(str).tolist()
@@ -295,11 +295,11 @@ def process_question(user_question: str, channel:str, user:str, threadts: str) -
                 elif matched["case"] == "ambiguous_match":
                     candidates = ", ".join(matched["candidates"])
                     logger.debug("Found similar customers.")
-                    send_message(channel,f"❓ I couldn’t find exact matches for those clients. Did you mean one of these?\n{candidates}" ,threadts)
+                    update_message(channel,threadts, f"❓ I couldn’t find exact matches for those clients. Did you mean one of these?\n{candidates}")
                     return
                 elif matched["case"] == "not_found":
                     logger.debug("No customer found.")
-                    send_message(channel, "❌ I couldn’t find any customers matching that name. Could you rephrase or check the spelling?",threadts)
+                    update_message(channel,threadts,  "❌ I couldn’t find any customers matching that name. Could you rephrase or check the spelling?")
                     return
             else:
                 logger.debug("⚠️ No clients mentioned, proceeding normally.")
@@ -311,15 +311,15 @@ def process_question(user_question: str, channel:str, user:str, threadts: str) -
         df = run_query(sql)
         logger.debug("Shape:", df.shape)
         if (df.shape[0] > 100):
-            code_exec_result, ts = run_code_execution(user_question, df, channel, user, ts)
+            code_exec_result, threadts = run_code_execution(user_question, df, channel, user, threadts)
             output = format_for_slack(code_exec_result)
-            update_message(channel, ts, output)
+            update_message(channel, threadts, output)
         else:
             code_exec_result = call_claude_simple(user_question, df)
             output = format_for_slack(code_exec_result)
-            update_message(channel, ts, output)
+            update_message(channel, threadts, output)
         
 
     except Exception as e:
-        send_message(channel,f"Error procesando la pregunta: {e}",threadts)
+        send_message(channel, threadts,f"Error procesando la pregunta: {e}")
         
