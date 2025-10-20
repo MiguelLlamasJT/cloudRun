@@ -163,7 +163,7 @@ def build_query_v2(filters: str) -> str:
     FROM `jt-prd-financial-pa.random_data.real_data`
     WHERE {where_clause}
     GROUP BY {group_by}
-    ORDER BY country, month;
+    ORDER BY {group_by};
     """
     return sql
 
