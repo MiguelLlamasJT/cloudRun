@@ -132,7 +132,7 @@ def build_query_v2(filters: str) -> str:
     group_by = []
     i = 0
     while i < len(metrics):
-        if (metrics[i] in ( "revenue", "gross profit")):
+        if (metrics[i] in ( "revenue", "gross_profit")):
             select_metrics.append(f"SUM({metrics[i]}) AS {metrics[i]}")
         else:
             select_metrics.append(f"{metrics[i]}")
