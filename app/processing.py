@@ -280,6 +280,7 @@ def process_question(user_question: str, channel:str, user:str, threadts: str) -
         if (queryable_json["is_queryable"] == "no" or queryable_json["confirmation_required"] == "yes"):
             send_message(channel, queryable_json["reply_to_user"], threadts)
             return
+        ts = send_message(channel=channel, thread_ts=threadts, text="💭 Thinking...")
         if (queryable_json["client_related"] == "yes"):
             df_clients = get_customer_list()
             all_clients = df_clients["sfdc_name_l3"].dropna().astype(str).tolist()
@@ -310,13 +311,13 @@ def process_question(user_question: str, channel:str, user:str, threadts: str) -
         df = run_query(sql)
         logger.debug("Shape:", df.shape)
         if (df.shape[0] > 100):
-            code_exec_result, ts = run_code_execution(user_question, df, channel, user, threadts)
+            code_exec_result, ts = run_code_execution(user_question, df, channel, user, ts)
             output = format_for_slack(code_exec_result)
             update_message(channel, ts, output)
         else:
             code_exec_result = call_claude_simple(user_question, df)
             output = format_for_slack(code_exec_result)
-            send_message(channel, output, threadts)
+            update_message(channel, ts, output)
         
 
     except Exception as e:
