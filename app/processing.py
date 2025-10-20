@@ -178,8 +178,8 @@ def get_customer_list():
     return df
 
 def run_query(sql: str):
-    max_tries = 3
-    current_tries = 0
+    #max_tries = 3
+    #current_tries = 0
     try:
         query_job = bq_client.query(sql)
         return query_job.to_dataframe()
