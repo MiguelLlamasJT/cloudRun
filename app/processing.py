@@ -173,6 +173,7 @@ def get_customer_list():
     FROM `jt-prd-financial-pa.random_data.real_data`
     WHERE sfdc_name_l3 IS NOT NULL
     """
+    
     df = run_query(sql)
     logger.debug("Succesfull customer list.")
     return df
