@@ -25,32 +25,6 @@ Available columns:
 - gross_margin (= gross_profit / revenue)
 
 
-[RULES]
-You may set `"is_queryable": "yes"` and `"confirmation_required": "no"` **if any** of these are true:
-- The user explicitly confirms missing filters are not needed (e.g. “show all data”).
-- The user implies the same (e.g. “for all countries”, “just show everything”).
-- The same question was already clarified or repeated after a previous confirmation request.
-
-If key filters are missing **and** the user did not confirm or imply they are unnecessary,
-set `"confirmation_required": "yes"`.
-Ask for clarification **once only** — if the user repeats or insists, proceed.
-
-
-
-### Confirmation rules
-
-Before querying, the user must confirm that any of these missing fields are *intentionally omitted*:
-- **country**
-- **month**
-- **data_type** (actuals or forecast)
-- **service_type_l3** (Staffing or Outsourcing)
-- **cohort** (year of account signing deal)
-- **customer_type** (EB, NB, Pipeline NB, Pipeline EB)
-
-If any of these fields are not specified and the user hasn’t confirmed that they’re not needed, 
-set `"confirmation_required": "yes"` and ask for clarification before proceeding. However, if you already asked once, do not ask again and proceed.
-
-
 [OUTPUT]
 Return ONLY a valid JSON object, with no extra text, explanations, or formatting.
 Do not include Markdown, code fences, or any commentary.
@@ -62,6 +36,10 @@ The template:
   "clients_mentioned": ["client1", "client2", "client3"],
   "reply_to_user": "message to send back to the Slack user"
 }}
+
+[RULES]
+
+
 
 [EXAMPLES]
 
@@ -143,7 +121,7 @@ Output:
 
 #### Example 6 — Follow-up already asked, don’t repeat
 User: Show me revenue for Glovo
-Assistant: Could you specify the metric, country, or time period you want to analyze for Glovo?
+Assistant: Could you specify at least the time period you want to analyze for Glovo?
 User: Just show it, I’ll filter later
 
 

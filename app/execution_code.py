@@ -13,7 +13,7 @@ def run_code_execution(prompt: str, df: pd.DataFrame, channel: str, user: str, t
         df.to_csv(tmp_file.name, index=False)
         tmp_path = tmp_file.name
     
-    logger.debug("file created at " + tmp_path)
+    #logger.debug("file created at " + tmp_path)
 
     with open(tmp_path, "rb") as f:
             uploaded = claude.beta.files.upload(file=("data.csv", f, "text/csv"))
