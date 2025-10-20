@@ -311,7 +311,7 @@ def process_question(user_question: str, channel:str, user:str, threadts: str) -
         df = run_query(sql)
         logger.debug("Shape:", df.shape)
         if (df.shape[0] > 100):
-            code_exec_result, threadts = run_code_execution(user_question, df, channel, user, threadts)
+            code_exec_result = run_code_execution(user_question, df, channel, user, threadts)
             output = format_for_slack(code_exec_result)
             update_message(channel, threadts, output)
         else:

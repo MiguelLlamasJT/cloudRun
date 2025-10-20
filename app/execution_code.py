@@ -4,7 +4,7 @@ import pandas as pd
 from threading import Event
 from concurrent.futures import ThreadPoolExecutor
 from app import claude, logger
-from app.utils_slack.slack_utils import send_message
+from app.utils_slack.slack_utils import update_message
 
 def run_code_execution(prompt: str, df: pd.DataFrame, channel: str, user: str, threadts: str, model: str = "claude-sonnet-4-5-20250929") -> str:  #claude-3-5-haiku-latest claude-sonnet-4-20250514
     if df.empty:
@@ -18,7 +18,7 @@ def run_code_execution(prompt: str, df: pd.DataFrame, channel: str, user: str, t
     with open(tmp_path, "rb") as f:
             uploaded = claude.beta.files.upload(file=("data.csv", f, "text/csv"))
     try:
-        thinking = send_message(channel=channel, thread_ts=threadts, text="🔬Analyzing...")
+        update_message(channel=channel, thread_ts=threadts, text="🔬Analyzing...")
         response = claude.beta.messages.create(
             model=model,
             betas=["code-execution-2025-08-25", "files-api-2025-04-14", "context-1m-2025-08-07"],
@@ -42,7 +42,7 @@ def run_code_execution(prompt: str, df: pd.DataFrame, channel: str, user: str, t
         logger.debug("code execution did not fail")
         input_tokens = "\n\nInput tokens: " + str(response.usage.input_tokens)
         logger.debug(input_tokens)
-        return output_text + input_tokens, thinking
+        return output_text + input_tokens
     finally:
         try:
             claude.beta.files.delete(uploaded.id)
