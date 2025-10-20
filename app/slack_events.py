@@ -25,7 +25,7 @@ def handler(body: dict):
         return
     processed_events.add(event_id)
 
-    #logger.info("Processing event: %s", json.dumps(event))
+    logger.info("Processing event: %s", json.dumps(event))
     user, channel, text, thread_ts = (
         event.get("user"),
         event.get("channel"),
