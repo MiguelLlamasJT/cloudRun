@@ -22,6 +22,7 @@ Filters are applied to the metrics (columns).
 
 ---
 
+
 ### Rules:
 1. Always return **only valid JSON**, with no extra text.
 2. JSON must have this structure:
