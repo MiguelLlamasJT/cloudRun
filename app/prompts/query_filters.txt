@@ -37,7 +37,7 @@ Filters are applied to the metrics (columns).
    - Do NOT add it unless explicitly or implicitly requested.
 5. **Temporal logic:**
    - If the user mentions a **specific year (e.g. 2024, 2025)** → include the full year.
-   - If no year is mentioned → use the **most recent year available**.
+   - If no year is mentioned → use the **most recent year available**, (all months for 2025)
    - If no week is mentioned -> use only the most recent week_label "w-0"
    - If the user says "last week" → include "w-1" `week_label`.
    - If the user says "this week" → include "w-0" `week_label`.
@@ -55,9 +55,23 @@ Filters are applied to the metrics (columns).
    - If no revenue mentioned reference -> do not include in metrics.
    - If no gross profit mentioned reference -> do not include in metrics.
    - If no country reference at all-> use all, do not filter, but do not include in metrics.
+7. Always include the month metric
 
 
 ---
+
+### Example: If the user mentions a metric but no year→ include the full current year in filters.
+User: "Show me all revenue per country"
+JSON:
+{{
+  "filters": {{
+    "week_label": ["w-0"],
+    "month": ["2025-01-01","2025-02-01","2025-03-01","2025-04-01","2025-05-01","2025-06-01","2025-07-01","2025-08-01","2025-09-01","2025-10-01", "2025-11-01","2025-12-01"]
+  }},
+  "metrics" : [ "country", "month", "revenue", "gross_profit"]
+}}
+
+
 
 ### Example: If the user mentions a **specific year (e.g. 2024, 2025)** → include the full year in filters.
 User: "Show me the WoW variations for gross margin and revenue in 2025 for Colombia Staffing"

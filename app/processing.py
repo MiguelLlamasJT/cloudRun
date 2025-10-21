@@ -278,7 +278,7 @@ def process_question(user_question: str, channel:str, user:str, threadts: str) -
             load_prompt(PROMPTS_PATH + "filter_messages2.txt", user_input = user_question)
             )
         logger.debug("🧠 Queryable JSON: %s", json.dumps(queryable_json))
-        if (queryable_json["is_queryable"] == "no" or queryable_json["confirmation_required"] == "yes"):
+        if (queryable_json["is_queryable"] == "no"):
             send_message(channel, queryable_json["reply_to_user"], threadts)
             return
         threadts = send_message(channel=channel, thread_ts=threadts, text="💭 Thinking...")
