@@ -18,7 +18,7 @@ def run_code_execution(prompt: str, df: pd.DataFrame, channel: str, user: str, t
     with open(tmp_path, "rb") as f:
             uploaded = claude.beta.files.upload(file=("data.csv", f, "text/csv"))
     try:
-        update_message(channel=channel, thread_ts=threadts, text="🔬Analyzing...")
+        update_message(channel=channel, ts=threadts, text="🔬Analyzing...")
         response = claude.beta.messages.create(
             model=model,
             betas=["code-execution-2025-08-25", "files-api-2025-04-14", "context-1m-2025-08-07"],

@@ -173,7 +173,7 @@ def get_customer_list():
     FROM `jt-prd-financial-pa.random_data.real_data`
     WHERE sfdc_name_l3 IS NOT NULL
     """
-    
+
     df = run_query(sql)
     logger.debug("Succesfull customer list.")
     return df
@@ -322,5 +322,5 @@ def process_question(user_question: str, channel:str, user:str, threadts: str) -
         
 
     except Exception as e:
-        send_message(channel, threadts,f"Error procesando la pregunta: {e}")
+        send_message(channel, f"Error procesando la pregunta: {e}", threadts)
         
