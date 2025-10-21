@@ -1,0 +1,12 @@
+options:
+  logging: CLOUD_LOGGING_ONLY
+
+steps:
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'gcr.io/jt-prd-financial-pa/github.com/miguelllamasjt/cloudrun:$COMMIT_SHA', '.']
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/jt-prd-financial-pa/github.com/miguelllamasjt/cloudrun:$COMMIT_SHA']
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      ['run', 'deploy', 'cloudrun', '--image', 'gcr.io/jt-prd-financial-pa/github.com/miguelllamasjt/cloudrun:$COMMIT_SHA', '--region', 'europe-west1', '--platform', 'managed', '--allow-unauthenticated']
