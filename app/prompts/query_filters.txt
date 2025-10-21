@@ -55,7 +55,7 @@ Filters are applied to the metrics (columns).
    - If no revenue mentioned reference -> do not include in metrics.
    - If no gross profit mentioned reference -> do not include in metrics.
    - If no country reference at all-> use all, do not filter, but do not include in metrics.
-7. Always include the month metric
+7. If not enough metrics mentioned, always include the month metric
 
 
 ---
