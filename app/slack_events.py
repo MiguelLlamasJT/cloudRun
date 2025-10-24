@@ -7,10 +7,7 @@ from app import logger
 processed_events = set()
 
 def handler(body: dict):
-    if body.get("type") == "url_verification":
-        logger.debug("Verification request from Slack")
-        return {"challenge": body["challenge"]}
-
+    
     event = body.get("event", {})
     event_id = body.get("event_id")
 

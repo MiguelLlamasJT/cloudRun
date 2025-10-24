@@ -5,6 +5,7 @@ from threading import Event
 from concurrent.futures import ThreadPoolExecutor
 from app import claude, logger
 from app.utils_slack.slack_utils import update_message
+from utils_slack.format_utils import format_for_slack
 
 def run_code_execution(prompt: str, df: pd.DataFrame, channel: str, user: str, threadts: str, model: str = "claude-sonnet-4-5-20250929") -> str:  #claude-3-5-haiku-latest claude-sonnet-4-20250514
     if df.empty:
@@ -42,7 +43,7 @@ def run_code_execution(prompt: str, df: pd.DataFrame, channel: str, user: str, t
         logger.debug("code execution did not fail")
         input_tokens = "\n\nInput tokens: " + str(response.usage.input_tokens)
         logger.debug(input_tokens)
-        return output_text + input_tokens
+        return format_for_slack(output_text + input_tokens)
     finally:
         try:
             claude.beta.files.delete(uploaded.id)

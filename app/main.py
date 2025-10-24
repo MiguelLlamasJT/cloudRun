@@ -1,5 +1,4 @@
 from fastapi import FastAPI, Request, BackgroundTasks
-import os
 from app.slack_events import handler
 
 app = FastAPI()
