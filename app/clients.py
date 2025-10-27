@@ -1,6 +1,6 @@
 from app import logger
 from rapidfuzz import fuzz, process
-from processing import run_query
+from app.bigQuery import run_query
 
 def get_customer_list():
     sql = """
