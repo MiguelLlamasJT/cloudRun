@@ -2,7 +2,7 @@ import json
 from app.execution_code import run_code_execution
 from app import claude, bq_client, PROMPTS_PATH, logger
 from app.utils_slack.slack_utils import send_message, update_message
-from llms import call_claude_simple, call_claude_with_prompt, load_prompt
+from app.llms import call_claude_simple, call_claude_with_prompt, load_prompt
 from bigQuery import run_query, build_query
 from clients import match_customers, get_customer_list
 
