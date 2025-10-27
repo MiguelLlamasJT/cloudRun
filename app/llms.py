@@ -1,7 +1,7 @@
 import pandas as pd
 from app import claude, logger
 from pathlib import Path
-from utils_slack.format_utils import format_for_slack, safe_json_parse
+from app.utils_slack.format_utils import format_for_slack, safe_json_parse
 
 def load_prompt(file_name: str, **kwargs) -> str:
     try:
