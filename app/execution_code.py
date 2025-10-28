@@ -36,22 +36,13 @@ def run_code_execution(prompt: str, df: pd.DataFrame, channel: str, user: str, t
         file_ids = []
         
         for block in response.content:
-            if (block.type == "bash_code_execution_tool_result"):
-                for internalBlock in block:
-                    if internalBlock[0] == "content":
-                        for contents in internalBlock[1]:
-                            if contents[0] == "content":
-                                file_ids.append(contents[1][0].file_id)
-        """                        
-        for block in response.content:
             if getattr(block, "type", "") == "bash_code_execution_tool_result":
-                for internalBlock in getattr(block, "content", []):
-                    if isinstance(internalBlock, (list, tuple)) and len(internalBlock) >= 2 and internalBlock[0] == "content":
-                        for contents in internalBlock[1]:
-                            if isinstance(contents, (list, tuple)) and len(contents) >= 2 and contents[0] == "content":
-                                files = getattr(contents[1][0], "file_id", None)
-                                if files:
-                                    file_ids.append(files)"""
+                result_block = getattr(block, "content", None)
+                if result_block:
+                    for output in getattr(result_block, "content", []):
+                        file_id = getattr(output, "file_id", None)
+                        if file_id:
+                            file_ids.append(file_id)
         print(file_ids)
         final_ids = []
         for id in file_ids:
@@ -59,7 +50,7 @@ def run_code_execution(prompt: str, df: pd.DataFrame, channel: str, user: str, t
             file_response = claude.beta.files.download(id)
             data = claude.beta.files.retrieve_metadata(id)
             file_id = uploadFiles(file_response, data.filename)
-            final_ids.append({file_id: data.filename})
+            final_ids.append({"id": file_id, "title": data.filename})
 
         logger.debug(response)
 
