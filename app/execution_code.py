@@ -34,7 +34,7 @@ def run_code_execution(prompt: str, df: pd.DataFrame, channel: str, user: str, t
             tools=[{"type": "code_execution_20250825", "name": "code_execution"}]
         )
         file_ids = []
-        """
+        
         for block in response.content:
             if (block.type == "bash_code_execution_tool_result"):
                 for internalBlock in block:
@@ -42,7 +42,7 @@ def run_code_execution(prompt: str, df: pd.DataFrame, channel: str, user: str, t
                         for contents in internalBlock[1]:
                             if contents[0] == "content":
                                 file_ids.append(contents[1][0].file_id)
-                                for block in response.content: """
+        """                        
         for block in response.content:
             if getattr(block, "type", "") == "bash_code_execution_tool_result":
                 for internalBlock in getattr(block, "content", []):
@@ -51,9 +51,11 @@ def run_code_execution(prompt: str, df: pd.DataFrame, channel: str, user: str, t
                             if isinstance(contents, (list, tuple)) and len(contents) >= 2 and contents[0] == "content":
                                 files = getattr(contents[1][0], "file_id", None)
                                 if files:
-                                    file_ids.append(files)
+                                    file_ids.append(files)"""
+        print(file_ids)
         final_ids = []
         for id in file_ids:
+            logger.debug(id)
             file_response = claude.beta.files.download(id)
             data = claude.beta.files.retrieve_metadata(id)
             file_id = uploadFiles(file_response, data.filename)

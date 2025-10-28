@@ -38,6 +38,7 @@ def completeUpload (channel: str, thread_ts: str, file_ids : list, text) -> str:
             thread_ts=thread_ts,
             initial_comment=text
         )
+        logger.debug(response)
 
 
 def get_thread_history(channel_id, thread_ts):
