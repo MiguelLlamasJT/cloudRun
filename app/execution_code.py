@@ -4,7 +4,7 @@ import pandas as pd
 from threading import Event
 from concurrent.futures import ThreadPoolExecutor
 from app import claude, logger
-from app.utils_slack.slack_utils import update_message
+from app.utils_slack.slack_utils import update_message, uploadFiles, completeUpload
 from app.utils_slack.format_utils import format_for_slack
 
 def run_code_execution(prompt: str, df: pd.DataFrame, channel: str, user: str, threadts: str, model: str = "claude-sonnet-4-5-20250929") -> str:  #claude-3-5-haiku-latest claude-sonnet-4-20250514
@@ -33,7 +33,32 @@ def run_code_execution(prompt: str, df: pd.DataFrame, channel: str, user: str, t
             }],
             tools=[{"type": "code_execution_20250825", "name": "code_execution"}]
         )
-        
+        file_ids = []
+        """
+        for block in response.content:
+            if (block.type == "bash_code_execution_tool_result"):
+                for internalBlock in block:
+                    if internalBlock[0] == "content":
+                        for contents in internalBlock[1]:
+                            if contents[0] == "content":
+                                file_ids.append(contents[1][0].file_id)
+                                for block in response.content: """
+        for block in response.content:
+            if getattr(block, "type", "") == "bash_code_execution_tool_result":
+                for internalBlock in getattr(block, "content", []):
+                    if isinstance(internalBlock, (list, tuple)) and len(internalBlock) >= 2 and internalBlock[0] == "content":
+                        for contents in internalBlock[1]:
+                            if isinstance(contents, (list, tuple)) and len(contents) >= 2 and contents[0] == "content":
+                                files = getattr(contents[1][0], "file_id", None)
+                                if files:
+                                    file_ids.append(files)
+        final_ids = []
+        for id in file_ids:
+            file_response = claude.beta.files.download(id)
+            data = claude.beta.files.retrieve_metadata(id)
+            file_id = uploadFiles(file_response, data.filename)
+            final_ids.append({file_id: data.filename})
+
         logger.debug(response)
 
         text_blocks = [item.text for item in response.content if getattr(item, "type", None) == "text"]
@@ -43,7 +68,11 @@ def run_code_execution(prompt: str, df: pd.DataFrame, channel: str, user: str, t
         logger.debug("code execution did not fail")
         input_tokens = "\n\nInput tokens: " + str(response.usage.input_tokens)
         logger.debug(input_tokens)
-        return format_for_slack(output_text + input_tokens)
+        output = format_for_slack(output_text + input_tokens)
+        if len(final_ids) > 0 :
+            completeUpload(channel, threadts, final_ids, format_for_slack(output_text+input_tokens))
+            return "Analysis Completed"
+        return output
     finally:
         try:
             claude.beta.files.delete(uploaded.id)

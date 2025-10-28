@@ -45,7 +45,7 @@ def process_question(user_question: str, channel:str, user:str, threadts: str) -
         logger.debug(f"SQL generated:\n{sql}")
         df = run_query(sql)
         logger.debug("Shape:", df.shape)
-        if (df.shape[0] > 100):
+        if (df.shape[0] > 100 or queryable_json["chart_requested"] == "yes"):
             output = run_code_execution(user_question, df, channel, user, threadts)
             update_message(channel, threadts, output)
         else:

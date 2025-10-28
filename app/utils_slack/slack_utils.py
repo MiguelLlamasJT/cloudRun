@@ -1,12 +1,43 @@
 import os
 import time
+import requests
 from datetime import datetime
 from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
 from app import logger
+from app import claude
 
 SLACK_BOT_TOKEN = os.environ.get("SLACK_BOT_TOKEN")
 client = WebClient(token=SLACK_BOT_TOKEN)
+
+
+def uploadFiles (response, filename) -> str:
+    file_bytes = response.read()
+    size = len(file_bytes)
+    response2 = client.files_getUploadURLExternal(
+            length=size,
+            filename=filename
+        )
+    upload_url = response2["upload_url"]
+    file_id = response2["file_id"]
+
+    upload_response = requests.post(
+        upload_url,
+        headers={"Content-Type": "application/octet-stream"}, 
+        data=file_bytes
+    )
+    if upload_response.status_code != 200:
+        print("Error uploading file:", upload_response.text)
+    return file_id
+
+
+def completeUpload (channel: str, thread_ts: str, file_ids : list, text) -> str:
+        response = client.files_completeUploadExternal(
+            files=file_ids,
+            channel_id=channel,
+            thread_ts=thread_ts,
+            initial_comment=text
+        )
 
 
 def get_thread_history(channel_id, thread_ts):
