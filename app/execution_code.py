@@ -6,6 +6,7 @@ from concurrent.futures import ThreadPoolExecutor
 from app import claude, logger
 from app.utils_slack.slack_utils import update_message, uploadFiles, completeUpload
 from app.utils_slack.format_utils import format_for_slack
+from app.llms import calculate_tokens_str, code_execution_call
 
 def run_code_execution(prompt: str, df: pd.DataFrame, channel: str, user: str, threadts: str, model: str = "claude-sonnet-4-5-20250929") -> str:  #claude-3-5-haiku-latest claude-sonnet-4-20250514
     if df.empty:
@@ -20,19 +21,7 @@ def run_code_execution(prompt: str, df: pd.DataFrame, channel: str, user: str, t
             uploaded = claude.beta.files.upload(file=("data.csv", f, "text/csv"))
     try:
         update_message(channel=channel, ts=threadts, new_text="🔬Analyzing...")
-        response = claude.beta.messages.create(
-            model=model,
-            betas=["code-execution-2025-08-25", "files-api-2025-04-14", "context-1m-2025-08-07"],
-            max_tokens=4096,
-            messages=[{
-                "role": "user",
-                "content": [
-                    {"type": "text", "text": "Based on the attached file and the provided prompt, generate an answer that is concise (approximately 60-per-cent condensed) but still retains essential details, in response to the following question:" + prompt},
-                    {"type": "container_upload", "file_id": uploaded.id}
-                ]
-            }],
-            tools=[{"type": "code_execution_20250825", "name": "code_execution"}]
-        )
+        response = code_execution_call(file_id=uploaded.id, model=model, prompt=prompt)
         file_ids = []
         
         for block in response.content:
@@ -59,18 +48,11 @@ def run_code_execution(prompt: str, df: pd.DataFrame, channel: str, user: str, t
         output_text = output_text.strip()
 
         logger.debug("code execution did not fail")
-        input_tokens = response.usage.input_tokens
-        output_tokens = response.usage.output_tokens
-        input_cost = round(int(input_tokens) * 0.86 * 5/  1000000,2)
-        output_cost = round(int(output_tokens) * 0.86 * 15/  1000000,2)
-        execution_cost = round(0.05 * 5 * 0.86 / 60, 2)
-        total_cost = input_cost + output_cost
-        input_str = "\n\nInput tokens: " + str(input_tokens) + " - Cost €: " + str(input_cost)
-        output_str = "\nOutput toens: "+ str(output_tokens) + " - Cost €: " + str(output_cost) + "Total cost: " + str(total_cost)
-        logger.debug(input_tokens)
-        output = format_for_slack(output_text + input_str + output_str)
+        token_str = calculate_tokens_str(response, fx=0.86, input_dollar_per_M=1, output_dollar_per_M=5)
+        logger.debug(token_str)
+        output = format_for_slack(output_text + token_str)
         if len(final_ids) > 0 :
-            completeUpload(channel, threadts, final_ids, format_for_slack(output_text+ input_str + output_str))
+            completeUpload(channel, threadts, final_ids, format_for_slack(output_text+ token_str))
             return "Analysis Completed"
         return output
     finally:

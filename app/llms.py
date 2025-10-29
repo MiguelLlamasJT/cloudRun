@@ -28,18 +28,23 @@ def call_claude_with_prompt(prompt: str) -> str:
         logger.debug(output)
         safe_json = safe_json_parse(output)
         logger.debug(safe_json)
-        input_tokens = response.usage.input_tokens
-        output_tokens = response.usage.output_tokens
-        input_cost = round(int(input_tokens) * 0.86 /  1000000,2)
-        output_cost = round(int(output_tokens) * 0.86 /  1000000,2)
-        total_cost = input_cost + output_cost
-        input_str = "\n\nInput tokens: " + str(input_tokens) + " - Cost €: " + str(input_cost)
-        output_str = "\nOutput toens: "+ str(output_tokens) + " - Cost €: " + str(output_cost) + "Total cost: " + str(total_cost)
-        logger.debug(input_str + output_str)
+        token_str = calculate_tokens_str(response, 0.86, 1, 5)
+        logger.debug(token_str)
         return safe_json
     except Exception as e:
         logger.debug("Fallo en la llamada a claude.")
         raise
+
+def calculate_tokens_str(response, fx: float, input_dollar_per_M: float, output_dollar_per_M: float) -> str:
+    input_tokens = response.usage.input_tokens
+    output_tokens = response.usage.output_tokens
+    input_cost = round(int(input_tokens) * fx * input_dollar_per_M/  1000000,2)
+    output_cost = round(int(output_tokens) * fx * output_dollar_per_M /  1000000,2)
+    total_cost = input_cost + output_cost
+    input_str = "\n\nInput tokens: " + str(input_tokens) + " - Cost €: " + str(input_cost)
+    output_str = "\nOutput tokens: "+ str(output_tokens) + " - Cost €: " + str(output_cost) + " - Total cost: " + str(total_cost)
+    return input_str + output_str
+
 
 def call_claude_simple(user_question: str, df: pd.DataFrame) ->str:
     df_json = df.to_json(orient="records")
@@ -71,12 +76,21 @@ def call_claude_simple(user_question: str, df: pd.DataFrame) ->str:
         )
     output = response.content[0].text
     #logger.debug(output)
-    input_tokens = response.usage.input_tokens
-    output_tokens = response.usage.output_tokens
-    input_cost = round(int(input_tokens) * 0.86 /  1000000,2)
-    output_cost = round(int(output_tokens) * 0.86 * 5 /  1000000,2)
-    total_cost = input_cost + output_cost
-    input_str = "\n\nInput tokens: " + str(input_tokens) + " - Cost €: " + str(input_cost)
-    output_str = "\nOutput toens: "+ str(output_tokens) + " - Cost €: " + str(output_cost) + "Total cost: " + str(total_cost)
-    logger.debug(input_tokens)
-    return format_for_slack(output + input_str + output_str)
+    token_str = calculate_tokens_str(response, 0.86, 1, 5)
+    return format_for_slack(output + token_str)
+
+def code_execution_call(file_id, model, prompt):
+    response = claude.beta.messages.create(
+            model=model,
+            betas=["code-execution-2025-08-25", "files-api-2025-04-14", "context-1m-2025-08-07"],
+            max_tokens=4096,
+            messages=[{
+                "role": "user",
+                "content": [
+                    {"type": "text", "text": "Based on the attached file and the provided prompt, generate an answer that is concise (approximately 60-per-cent condensed) but still retains essential details, in response to the following question:" + prompt},
+                    {"type": "container_upload", "file_id": file_id}
+                ]
+            }],
+            tools=[{"type": "code_execution_20250825", "name": "code_execution"}]
+        )
+    return response
