@@ -63,9 +63,10 @@ def run_code_execution(prompt: str, df: pd.DataFrame, channel: str, user: str, t
         output_tokens = response.usage.output_tokens
         input_cost = round(int(input_tokens) * 0.86 * 5/  1000000,2)
         output_cost = round(int(output_tokens) * 0.86 * 15/  1000000,2)
+        execution_cost = round(0.05 * 5 * 0.86 / 60, 2)
         total_cost = input_cost + output_cost
-        input_str = "\n\nInput tokens: " + str(input_tokens) + " - Cost €: " + input_cost
-        output_str = "\nOutput toens: "+ str(output_tokens) + " - Cost €: " + output_cost + "Total cost: " + total_cost
+        input_str = "\n\nInput tokens: " + str(input_tokens) + " - Cost €: " + str(input_cost)
+        output_str = "\nOutput toens: "+ str(output_tokens) + " - Cost €: " + str(output_cost) + "Total cost: " + str(total_cost)
         logger.debug(input_tokens)
         output = format_for_slack(output_text + input_str + output_str)
         if len(final_ids) > 0 :

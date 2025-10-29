@@ -33,8 +33,8 @@ def call_claude_with_prompt(prompt: str) -> str:
         input_cost = round(int(input_tokens) * 0.86 /  1000000,2)
         output_cost = round(int(output_tokens) * 0.86 /  1000000,2)
         total_cost = input_cost + output_cost
-        input_str = "\n\nInput tokens: " + str(input_tokens) + " - Cost €: " + input_cost
-        output_str = "\nOutput toens: "+ str(output_tokens) + " - Cost €: " + output_cost + "Total cost: " + total_cost
+        input_str = "\n\nInput tokens: " + str(input_tokens) + " - Cost €: " + str(input_cost)
+        output_str = "\nOutput toens: "+ str(output_tokens) + " - Cost €: " + str(output_cost) + "Total cost: " + str(total_cost)
         logger.debug(input_str + output_str)
         return safe_json
     except Exception as e:
@@ -76,7 +76,7 @@ def call_claude_simple(user_question: str, df: pd.DataFrame) ->str:
     input_cost = round(int(input_tokens) * 0.86 /  1000000,2)
     output_cost = round(int(output_tokens) * 0.86 * 5 /  1000000,2)
     total_cost = input_cost + output_cost
-    input_str = "\n\nInput tokens: " + str(input_tokens) + " - Cost €: " + input_cost
-    output_str = "\nOutput toens: "+ str(output_tokens) + " - Cost €: " + output_cost + "Total cost: " + total_cost
+    input_str = "\n\nInput tokens: " + str(input_tokens) + " - Cost €: " + str(input_cost)
+    output_str = "\nOutput toens: "+ str(output_tokens) + " - Cost €: " + str(output_cost) + "Total cost: " + str(total_cost)
     logger.debug(input_tokens)
     return format_for_slack(output + input_str + output_str)
