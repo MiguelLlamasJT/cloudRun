@@ -28,7 +28,7 @@ def call_claude_with_prompt(prompt: str) -> str:
         logger.debug(output)
         safe_json = safe_json_parse(output)
         logger.debug(safe_json)
-        input_tokens = "\n\nInput tokens: " + str(response.usage.input_tokens)
+        input_tokens = "\n\nInput tokens: " + str(response.usage.input_tokens) + " - Cost €: " + str(int(response.usage.input_tokens) * 0.86 /  1000000)
         logger.debug(input_tokens)
         return safe_json
     except Exception as e:
@@ -65,6 +65,6 @@ def call_claude_simple(user_question: str, df: pd.DataFrame) ->str:
         )
     output = response.content[0].text
     #logger.debug(output)
-    input_tokens = "\n\nInput tokens: " + str(response.usage.input_tokens)
+    input_tokens = "\n\nInput tokens: " + str(response.usage.input_tokens) + " - Cost €: " + str(int(response.usage.input_tokens) * 0.86 /  1000000)
     logger.debug(input_tokens)
     return format_for_slack(output)

@@ -59,7 +59,7 @@ def run_code_execution(prompt: str, df: pd.DataFrame, channel: str, user: str, t
         output_text = output_text.strip()
 
         logger.debug("code execution did not fail")
-        input_tokens = "\n\nInput tokens: " + str(response.usage.input_tokens)
+        input_tokens = "\n\nInput tokens: " + str(response.usage.input_tokens) + " - Cost €: " + str(int(response.usage.input_tokens) * 0.86 /  3000000)
         logger.debug(input_tokens)
         output = format_for_slack(output_text + input_tokens)
         if len(final_ids) > 0 :
