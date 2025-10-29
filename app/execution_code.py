@@ -70,7 +70,7 @@ def run_code_execution(prompt: str, df: pd.DataFrame, channel: str, user: str, t
         logger.debug(input_tokens)
         output = format_for_slack(output_text + input_str + output_str)
         if len(final_ids) > 0 :
-            completeUpload(channel, threadts, final_ids, format_for_slack(output_text+input_tokens))
+            completeUpload(channel, threadts, final_ids, format_for_slack(output_text+ input_str + output_str))
             return "Analysis Completed"
         return output
     finally:
