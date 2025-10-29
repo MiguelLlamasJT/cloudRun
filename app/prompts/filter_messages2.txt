@@ -32,7 +32,7 @@ The template:
 {{
   "is_queryable": "yes"|"no",
   "client_related": "yes"|"no",
-  "chart_requested": "yes"|"no",
+  "file_requested": "yes"|"no",
   "clients_mentioned": ["client1", "client2", "client3"],
   "reply_to_user": "message to send back to the Slack user"
 }}
@@ -48,6 +48,7 @@ Output:
 {{
   "is_queryable": "no",
   "client_related": "no",
+  "file_requested": "no",
   "clients_mentioned": [],
   "reply_to_user": "You didn’t specify the country or any other field. Should I show all available data for 2025?"
 }}
@@ -63,6 +64,7 @@ Output:
 {{
   "is_queryable": "yes",
   "client_related": "no",
+  "file_requested": "no",
   "clients_mentioned": [],
   "reply_to_user": "✅ Confirmed. Showing all revenue data for 2025 per country."
 }}
@@ -76,6 +78,7 @@ Output:
 {{
   "is_queryable": "yes",
   "client_related": "no",
+  "file_requested": "no",
   "clients_mentioned": [],
   "reply_to_user": "✅ Confirmed. Querying all data for 2025."
 }}
@@ -89,6 +92,7 @@ Output:
 {{
   "is_queryable": "yes",
   "client_related": "yes",
+  "file_requested": "no",
   "clients_mentioned": ["Glovo"],
   "reply_to_user": "Could you specify the metric, country, or time period you want to analyze for Glovo?"
 }}
@@ -96,12 +100,13 @@ Output:
 ---
 
 #### Example 5 — Client-related, full details
-User: Show me gross profit for GXO Logistics and DE PUY PERFUMES in 2025
+User: Show me gross profit for GXO Logistics and DE PUY PERFUMES in 2025 and give me a chart
 
 Output:
 {{
   "is_queryable": "yes",
   "client_related": "yes",
+  "file_requested": "yes",
   "clients_mentioned": ["GXO Logistics", "DE PUY PERFUMES"],
   "reply_to_user": "✅ Enough details provided: GXO Logistics, DE PUY PERFUMES, Spain, 2025."
 }}
@@ -118,6 +123,24 @@ Output:
 {{
   "is_queryable": "yes",
   "client_related": "yes",
+  "file_requested": "no",
+  "clients_mentioned": ["Glovo"],
+  "reply_to_user": "✅ Confirmed. Querying all available data for Glovo."
+}}
+
+---
+
+#### Example 7 — Follow-up already asked, and file requested
+User: Show me revenue for Glovo in 2025 in spain
+Assistant: Sure, here you have the revenue for Glovo in spain in 2025: 3M€
+User: Thanks give me the answer in a txt file.
+
+
+Output:
+{{
+  "is_queryable": "yes",
+  "client_related": "yes",
+  "file_requested": "yes",
   "clients_mentioned": ["Glovo"],
   "reply_to_user": "✅ Confirmed. Querying all available data for Glovo."
 }}
