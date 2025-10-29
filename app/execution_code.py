@@ -59,9 +59,15 @@ def run_code_execution(prompt: str, df: pd.DataFrame, channel: str, user: str, t
         output_text = output_text.strip()
 
         logger.debug("code execution did not fail")
-        input_tokens = "\n\nInput tokens: " + str(response.usage.input_tokens) + " - Cost €: " + str(int(response.usage.input_tokens) * 0.86 /  3000000)
+        input_tokens = response.usage.input_tokens
+        output_tokens = response.usage.output_tokens
+        input_cost = round(int(input_tokens) * 0.86 /  1000000,2)
+        output_cost = round(int(output_tokens) * 0.86 /  1000000,2)
+        total_cost = input_cost + output_cost
+        input_str = "\n\nInput tokens: " + str(input_tokens) + " - Cost €: " + input_cost
+        output_str = "\nOutput toens: "+ str(output_tokens) + " - Cost €: " + output_cost + "Total cost: " + total_cost
         logger.debug(input_tokens)
-        output = format_for_slack(output_text + input_tokens)
+        output = format_for_slack(output_text + input_str + output_str)
         if len(final_ids) > 0 :
             completeUpload(channel, threadts, final_ids, format_for_slack(output_text+input_tokens))
             return "Analysis Completed"

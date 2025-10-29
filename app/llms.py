@@ -28,8 +28,14 @@ def call_claude_with_prompt(prompt: str) -> str:
         logger.debug(output)
         safe_json = safe_json_parse(output)
         logger.debug(safe_json)
-        input_tokens = "\n\nInput tokens: " + str(response.usage.input_tokens) + " - Cost €: " + str(int(response.usage.input_tokens) * 0.86 /  1000000)
-        logger.debug(input_tokens)
+        input_tokens = response.usage.input_tokens
+        output_tokens = response.usage.output_tokens
+        input_cost = round(int(input_tokens) * 0.86 /  1000000,2)
+        output_cost = round(int(output_tokens) * 0.86 /  1000000,2)
+        total_cost = input_cost + output_cost
+        input_str = "\n\nInput tokens: " + str(input_tokens) + " - Cost €: " + input_cost
+        output_str = "\nOutput toens: "+ str(output_tokens) + " - Cost €: " + output_cost + "Total cost: " + total_cost
+        logger.debug(input_str + output_str)
         return safe_json
     except Exception as e:
         logger.debug("Fallo en la llamada a claude.")
@@ -65,6 +71,12 @@ def call_claude_simple(user_question: str, df: pd.DataFrame) ->str:
         )
     output = response.content[0].text
     #logger.debug(output)
-    input_tokens = "\n\nInput tokens: " + str(response.usage.input_tokens) + " - Cost €: " + str(int(response.usage.input_tokens) * 0.86 /  1000000)
+    input_tokens = response.usage.input_tokens
+    output_tokens = response.usage.output_tokens
+    input_cost = round(int(input_tokens) * 0.86 /  1000000,2)
+    output_cost = round(int(output_tokens) * 0.86 /  1000000,2)
+    total_cost = input_cost + output_cost
+    input_str = "\n\nInput tokens: " + str(input_tokens) + " - Cost €: " + input_cost
+    output_str = "\nOutput toens: "+ str(output_tokens) + " - Cost €: " + output_cost + "Total cost: " + total_cost
     logger.debug(input_tokens)
-    return format_for_slack(output)
+    return format_for_slack(output + input_str + output_str)
