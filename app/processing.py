@@ -23,19 +23,33 @@ def process_question(user_question: str, channel:str, user:str, threadts: str) -
             if (proceed == "no"):
                 update_message(channel=channel, ts=threadts, new_text=user_question)
                 return
+        """
+        tables = first_response["tables"]
+        if len(tables) > 1:
+            logger.debug("Multiple-table logic not implemented")
+        elif tables[0] == "profitandloss":
+            logger.debug("General Logic")
+            output = generalLogic(user_question)
+            update_message(channel, threadts, output)
+        elif tables[0] == "topline":
+            logger.debug("ToplineLogic")
+            output = toplineLogic(user_question)
+            update_message(channel, threadts, output)"""
         filters_json = call_claude_with_prompt(load_prompt(PROMPTS_PATH + "query_filters.txt", user_input=user_question))
         logger.debug("🧠 Filters created: %s",json.dumps(filters_json))
         sql = build_query(filters_json)
         logger.debug(f"SQL generated:\n{sql}")
         df = run_query(sql)
         logger.debug("Shape:", df.shape)
-        if (df.shape[0] > 100 or first_response["file_requested"] == "yes"):
+        output = run_code_execution(user_question, df, channel, user, threadts)
+        update_message(channel, threadts, output)
+        """if (df.shape[0] > 100 or first_response["file_requested"] == "yes"):
             output = run_code_execution(user_question, df, channel, user, threadts)
             update_message(channel, threadts, output)
         else:
             output = call_claude_simple(user_question, df)
             update_message(channel, threadts, output)
-        
+        """
 
     except Exception as e:
         send_message(channel, f"Error procesando la pregunta: {e}", threadts)
