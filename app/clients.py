@@ -1,6 +1,31 @@
 from app import logger
 from rapidfuzz import fuzz, process
 from app.bigQuery import run_query
+import json
+
+def clientLogic(mentioned, user_question):
+    df_clients = get_customer_list()
+    all_clients = df_clients["sfdc_name_l3"].dropna().astype(str).tolist()
+    if mentioned:
+        matched = match_customers(mentioned, all_clients, top_n=10)
+        logger.debug("🔍 Matching result: %s", json.dumps(matched))
+        if matched["case"] == "direct_match":
+            logger.debug("Found exact customers.")
+            customer_string = ", ".join(matched["exact"])
+            user_question += f"\n\nThese are the exact customers detected with an internal function based on the thread: {customer_string}"
+            return "yes", user_question
+        elif matched["case"] == "ambiguous_match":
+            candidates = ", ".join(matched["candidates"])
+            logger.debug("Found similar customers.")
+            return "no", f"❓ I couldn’t find exact matches for those clients. Did you mean one of these?\n{candidates}"
+        elif matched["case"] == "not_found":
+            logger.debug("No customer found.")
+            return "no","❌ I couldn’t find any customers matching that name. Could you rephrase or check the spelling?"
+    else:
+        logger.debug("No clients mentioned.")
+        return "yes", user_question
+
+
 
 def get_customer_list():
     sql = """

@@ -1,5 +1,5 @@
 import json
-from app.utils_slack.validators import is_valid_slack_event, is_authorized_user
+from app.utils_slack.validators import is_valid_message_event, is_authorized_user
 from app.utils_slack.slack_utils import get_thread_history, send_message
 from app.processing import process_question
 from app import logger
@@ -11,7 +11,7 @@ def handler(body: dict):
     event = body.get("event", {})
     event_id = body.get("event_id")
 
-    if not is_valid_slack_event(event):
+    if not is_valid_message_event(event):
         #logger.info(event)
         logger.warning("Invalid or non-message event")
         return
@@ -36,7 +36,7 @@ def handler(body: dict):
 
     if not is_authorized_user(user):
         logger.warning("Unauthorized user: %s", user)
-        send_message(channel, "Usuario no autorizado.", thread_ts)
+        send_message(channel, "Under Maintenance.", thread_ts)
         return
 
     thread_text = get_thread_history(channel, thread_ts)

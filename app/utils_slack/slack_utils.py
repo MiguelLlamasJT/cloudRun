@@ -47,7 +47,7 @@ def get_thread_history(channel_id, thread_ts):
         response = client.conversations_replies(
             channel=channel_id,
             ts=thread_ts,
-            limit=20
+            limit=8
         )
 
         if not response.get("ok", False):

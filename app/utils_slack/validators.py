@@ -1,7 +1,7 @@
 from app import AUTHORIZED_USERS
 from app import logger
 
-def is_valid_slack_event(event: dict) -> bool:
+def is_valid_message_event(event: dict) -> bool:
     return event.get("type") == "message" and not event.get("bot_id")
 
 def is_authorized_user(user_id: str) -> bool:

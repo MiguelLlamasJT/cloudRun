@@ -3,7 +3,8 @@ import sys
 import anthropic
 import os
 from dotenv import load_dotenv
-from google.cloud import bigquery
+from google.cloud import bigquery, firestore
+from datetime import datetime, timedelta, timezone
 
 
 load_dotenv()
@@ -37,34 +38,33 @@ for noisy_logger in [
 ]:
     logging.getLogger(noisy_logger).setLevel(logging.WARNING)
 
-""" CONFIGURACION CON SEVERITY, serviria PARA PRODUCCION
-logging.basicConfig(
-    level=logging.DEBUG,  # Nivel mínimo de log mostrado
-    format="[%(levelname)s] %(name)s.%(funcName)s():Line %(lineno)d → %(message)s",
-    handlers=[logging.StreamHandler(sys.stdout)]  # Enviar todo a stdout
-)
-logger = logging.getLogger(__name__)
-
-class GCPJsonFormatter(logging.Formatter):
-    def format(self, record):
-        log = {
-            "severity": record.levelname,
-            "message": record.getMessage(),
-            "logger": record.name,
-        }
-        return json.dumps(log)
-
-handler = logging.StreamHandler(sys.stdout)
-handler.setFormatter(GCPJsonFormatter())
-root = logging.getLogger()
-root.setLevel(logging.INFO)
-root.addHandler(handler)
-
-"""
-
 
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
 PROMPTS_PATH = "/app/app/prompts/"
 claude = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
 AUTHORIZED_USERS = ["U06BW8J6MRU", "U031RNA3J86", "U01BECSBLJ1", "U02CYBAR4JY", "U0CGEEKJT"] #miguel, gon, gato, dani, Juan
 bq_client = bigquery.Client()
+db = firestore.Client()
+
+
+class Thread:
+    def __init__(self, event: dict):
+        thread_id = event.get("thread_ts") or event.get("ts")
+        self.ref = db.collections("slack-bot").document(thread_id)
+        doc = self.ref.get()
+        if doc.exists:
+            data = doc.to_dict()
+            self.user_id = data.get("user_id")
+            self.thread_id = data.get("thread_id")
+            self.channel_id = data.get("channel_id")
+            self.messages = data.get("messages",[])
+            self.messages.append(event.get("text"))
+            self.claude_file_ids = data.get("file_ids", [])
+            self.expireAt = data.get("expireAt")
+        else:
+            self.user_id = event.get("user")
+            self.channel_id = event.get("channel")
+            self.messages = [event.get("text")]
+            self.thread_id = thread_id
+            self.claude_file_ids = []
+            self.expireAt = datetime.now(timezone.utc) + timedelta(days=7)
