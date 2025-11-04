@@ -26,7 +26,10 @@ def build_query(filters: str, table: str, allowed_columns: list) -> str:
             continue
         if isinstance(vals, (int, float, str)):
             vals = [vals]
-        vals_sql = ", ".join([f"'{v}'" for v in vals])
+        if col == "year" and table == "jt-prd-financial-pa.random_data.pnl_data":
+            vals_sql = ", ".join([f"'{v}'" for v in vals])
+        else:
+            vals_sql = ", ".join([f"'{v}'" for v in vals])
         where_clauses.append(f"{col} IN ({vals_sql})")
     where_clause = " AND ".join(where_clauses) if where_clauses else "1=1"
 

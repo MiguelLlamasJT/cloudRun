@@ -38,7 +38,7 @@ Allowed filters: organic/inorganic, country, subsidiary, year, month, date_week,
 
 Temporal logic:
 
-If no time reference → assume current date_week YYYY-WW
+If no date_week reference → assume current date_week YYYY-WW
 If no year reference → assume current year
 If user mentions WoW → include current and last date_week
 If user mentions YoY or Year-Over-Year → include current and last year
@@ -52,6 +52,7 @@ If user mentions a subsidiary (e.g. Jobandtalent, Avanza) → map to SUBSIDIARY 
 If user mentions a country → map to COUNTRY filter.
 If no filters specified → include most recent YEAR and all countries.
 Always include country, year, month and item as context metrics.
+Always include date_week as a filter.
 
 Response must be deterministic:
 Never include free text or explanations — JSON only.
