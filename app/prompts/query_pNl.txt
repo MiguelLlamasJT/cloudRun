@@ -11,8 +11,8 @@ Filters are applied to the metrics (columns).
 organic/inorganic (STRING): "organic" = internal growth, "inorganic" = M&A
 country (STRING): country code or HQ region (e.g. ES, UK, CO, SE, DE, FR, BE, PT, US, HQ, NO)
 subsidiary (STRING): subsidiary or business unit name (e.g. Jobandtalent, Action Plan, Avanza, etc.)
-year (INT): four-digit year (e.g. 2024, 2025, 2026)
-month (INT): month number (1–12)
+year (STRING): four-digit year (e.g. 2,024, 2,025, 2,026)
+month (STRING): month number (1–12)
 date_week (STRING): ISO year-week label (e.g. 2025_43)
 item (STRING): profit & loss item (e.g. Revenues, Gross Profit, EBITDA, Personnel, OPEX, etc.)
 data_type (STRING): Actuals, Forecast, or Action Plan type
@@ -65,7 +65,7 @@ JSON:
 {{
     "filters": {{
         "country": ["ES"],
-        "year": ["2025"],
+        "year": ["2,025"],
         "item": ["EBITDA"],
         "date_week" : ["2025_44"]
     }},
@@ -79,7 +79,7 @@ JSON:
 {{
     "filters": {{
         "country": ["ES"],
-        "year": ["2025"],
+        "year": ["2,025"],
         "item": ["EBITDA"],
         "date_week" : ["2025_44", "2025_43"]
     }},
@@ -93,7 +93,7 @@ JSON:
 {{
     "filters": {{
         "country": ["ES", "UK"],
-        "year": ["2025"],
+        "year": ["2,025"],
         "item": ["Revenue", "Other Revenue", "Revenue_Outsourcing"],
         "date_week" : ["2025_44", "2025_43"]
     }},
