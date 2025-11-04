@@ -48,12 +48,12 @@ Return the final JSON object only.
 User: “Show me the EBITDA for Spain in 2025.”
 JSON:
 {{
-"proceed": "yes",
-"tables": ["profitAndLoss"],
-"client_related": "no",
-"file_requested": "no",
-"clients_mentioned": [],
-"reply_to_user": ""
+  "proceed": "yes",
+  "tables": ["profitAndLoss"],
+  "client_related": "no",
+  "file_requested": "no",
+  "clients_mentioned": [],
+  "reply_to_user": ""
 }}
 
 ##Example 2:
@@ -61,12 +61,12 @@ JSON:
 User: “What’s the revenue split by client in the UK?”
 JSON:
 {{
-"proceed": "yes",
-"tables": ["detailed_topline"],
-"client_related": "yes",
-"file_requested": "no",
-"clients_mentioned": [],
-"reply_to_user": ""
+  "proceed": "yes",
+  "tables": ["detailed_topline"],
+  "client_related": "yes",
+  "file_requested": "no",
+  "clients_mentioned": [],
+  "reply_to_user": ""
 }}
 
 
@@ -78,12 +78,12 @@ User: “Now show the top 10 clients for Spain.”
 
 JSON:
 {{
-"proceed": "yes",
-"tables": ["detailed_topline"],
-"client_related": "yes",
-"file_requested": "no",
-"clients_mentioned": [],
-"reply_to_user": ""
+  "proceed": "yes",
+  "tables": ["detailed_topline"],
+  "client_related": "yes",
+  "file_requested": "no",
+  "clients_mentioned": [],
+  "reply_to_user": ""
 }}
 
 ##Example 4:
@@ -93,12 +93,12 @@ User: “And include Amazon and Google this time.”
 
 JSON:
 {{
-"proceed": "yes",
-"tables": ["detailed_topline"],
-"client_related": "yes",
-"file_requested": "no",
-"clients_mentioned": ["Amazon", "Google"],
-"reply_to_user": ""
+  "proceed": "yes",
+  "tables": ["detailed_topline"],
+  "client_related": "yes",
+  "file_requested": "no",
+  "clients_mentioned": ["Amazon", "Google"],
+  "reply_to_user": ""
 }}
 
 

@@ -25,9 +25,9 @@ amount: amount refering to profit and loss item (ftes, euros)
 Always return only valid JSON, no extra text.
 JSON must have this structure:
 {{
-  "filters": {
+  "filters": {{
     "column_name": ["value1", "value2", ...]
-  },
+  }},
   "metrics": ["country", "subsidiary", "year", "month", "date_week", "item", "data_type", "amount"]
 }}
 Allowed filters: organic/inorganic, country, subsidiary, year, month, date_week, item, data_type
@@ -63,12 +63,12 @@ User: “Show me the ebitda for Spain in 2025.”
 Current date_week: 2025_44
 JSON:
 {{
-    "filters": {
+    "filters": {{
         "country": ["ES"],
         "year": ["2025"],
         "item": ["EBITDA"],
         "date_week" : ["2025_44"]
-    },
+    }},
     "metrics": ["country", "year", "month", "date_week", "item", "amount"]
 }}
 
@@ -77,12 +77,12 @@ User: “Show me ebitda WoW for Spain in 2025.”
 Current date_week: 2025_44
 JSON:
 {{
-    "filters": {
+    "filters": {{
         "country": ["ES"],
         "year": ["2025"],
         "item": ["EBITDA"],
         "date_week" : ["2025_44", "2025_43"]
-    },
+    }},
     "metrics": ["country", "year", "month", "date_week", "item", "amount"]
 }}
 
@@ -91,12 +91,12 @@ User: “Show me revenue WoW for Spain and united kingdom in 2025.”
 Current date_week: 2025_44
 JSON:
 {{
-    "filters": {
+    "filters": {{
         "country": ["ES", "UK"],
         "year": ["2025"],
         "item": ["Revenue", "Other Revenue", "Revenue_Outsourcing"],
         "date_week" : ["2025_44", "2025_43"]
-    },
+    }},
     "metrics": ["country", "year", "month", "date_week", "item", "amount"]
 }}
 ---
