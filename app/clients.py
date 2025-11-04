@@ -13,7 +13,11 @@ def clientLogic(first_response, user_question: str, channel:str, user:str, threa
         return user_question
     filters_json = call_claude_with_prompt(load_prompt(PROMPTS_PATH + "query_filters.txt", user_input=user_question))
     logger.debug("🧠 Filters created: %s",json.dumps(filters_json))
-    sql = build_query(filters_json, "jt-prd-financial-pa.random_data.real_data")
+    allowed_columns = [
+        "data_week", "week_label", "sfdc_name_l3", "am_name_l3", "country",
+        "service_type_l3", "month", "customer_type", "cohort", "data_type"
+    ]
+    sql = build_query(filters_json, "jt-prd-financial-pa.random_data.real_data", allowed_columns)
     logger.debug(f"SQL generated:\n{sql}")
     df = run_query(sql)
     logger.debug("Shape:", df.shape)

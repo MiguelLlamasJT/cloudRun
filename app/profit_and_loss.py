@@ -9,7 +9,10 @@ def pnlLogic(user_question: str, channel:str, user:str, threadts: str) -> str:
     current_week = calculate_current_week()
     filters_json = call_claude_with_prompt(load_prompt(PROMPTS_PATH + "query_pNl.txt", user_input=user_question, current_week=current_week))
     logger.debug("🧠 Filters created: %s",json.dumps(filters_json))
-    sql = build_query(filters_json, "jt-prd-financial-pa.random_data.pnl_data")
+    allowed_columns = [
+        "country", "subsidiary", "year", "month", "date_week", "item", "data_type"
+    ]
+    sql = build_query(filters_json, "jt-prd-financial-pa.random_data.pnl_data", allowed_columns)
     logger.debug(f"SQL generated:\n{sql}")
     df = run_query(sql)
     logger.debug("Shape:", df.shape)

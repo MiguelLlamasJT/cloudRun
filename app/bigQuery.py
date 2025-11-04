@@ -2,7 +2,7 @@ import pandas as pd
 from app import logger, bq_client
 
 
-def build_query(filters: str, table: str) -> str:
+def build_query(filters: str, table: str, allowed_columns: list) -> str:
     
     metrics = filters.get("metrics")
     select_metrics = []
@@ -17,11 +17,6 @@ def build_query(filters: str, table: str) -> str:
         i+=1
     select_metrics = ", ".join(select_metrics)
     group_by = ", ".join(group_by)
-
-    allowed_columns = {
-        "data_week", "week_label", "sfdc_name_l3", "am_name_l3", "country",
-        "service_type_l3", "month", "customer_type", "cohort", "data_type"
-    }
     where_clauses = []
     for col, vals in filters.get("filters", {}).items():
         if col not in allowed_columns:
