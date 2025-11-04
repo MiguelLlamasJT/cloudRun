@@ -9,7 +9,7 @@ def build_query(filters: str, table: str, allowed_columns: list) -> str:
     group_by = []
     i = 0
     while i < len(metrics):
-        if (metrics[i] in ( "revenue", "gross_profit")):
+        if (metrics[i] in ( "revenue", "gross_profit", "amount")):
             select_metrics.append(f"SUM({metrics[i]}) AS {metrics[i]}")
         else:
             select_metrics.append(f"{metrics[i]}")
