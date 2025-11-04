@@ -25,7 +25,7 @@ def process_question(user_question: str, channel:str, user:str, threadts: str) -
             return
         elif tables[0] == "profitAndLoss":
             logger.debug("General Logic")
-            output = pnlLogic(first_response, user_question, channel, user, threadts)
+            output = pnlLogic(user_question, channel, user, threadts)
             update_message(channel, threadts, output)
             return
         elif tables[0] == "detailed_topline":
