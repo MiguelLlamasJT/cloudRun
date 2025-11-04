@@ -4,136 +4,156 @@ into structured JSON representing SQL filters for a BigQuery table.
 Your goal is to identify filters and metrics from the user question with precision.
 Filters are applied to the metrics (columns).
 
-
 ---
 
 ##Table schema:
 
-ORGANIC:
-COUNTRY (STRING): country code or HQ region (e.g. ES, UK, CO, SE, DE, FR, BE, PT, US, HQ, NO)
-SUBSIDIARY (STRING): subsidiary or business unit name (e.g. Jobandtalent, Action Plan, Avanza, etc.)
-YEAR (INT): four-digit year (e.g. 2024, 2025, 2026)
-MONTH (INT): month number (1–12)
-YYYY-WW (STRING): ISO year-week label (e.g. 2025_43)
-P&L ITEM (STRING): profit & loss item (e.g. Revenues, Gross Profit, EBITDA, Personnel, OPEX, etc.)
-ACT - FCST (STRING): Actuals, Forecast, or Action Plan type
-CURRENCY (STRING): reporting currency (e.g. EUR, GBP, USD)
-AMOUNT: 
+organic/inorganic (STRING): "organic" = internal growth, "inorganic" = M&A
+country (STRING): country code or HQ region (e.g. ES, UK, CO, SE, DE, FR, BE, PT, US, HQ, NO)
+subsidiary (STRING): subsidiary or business unit name (e.g. Jobandtalent, Action Plan, Avanza, etc.)
+year (INT): four-digit year (e.g. 2024, 2025, 2026)
+month (INT): month number (1–12)
+date_week (STRING): ISO year-week label (e.g. 2025_43)
+item (STRING): profit & loss item (e.g. Revenues, Gross Profit, EBITDA, Personnel, OPEX, etc.)
+data_type (STRING): Actuals, Forecast, or Action Plan type
+amount: amount refering to profit and loss item (ftes, euros)
 
-Rules:
+---
+
+##Output:
 
 Always return only valid JSON, no extra text.
-
 JSON must have this structure:
-
-{
+{{
   "filters": {
     "column_name": ["value1", "value2", ...]
   },
-  "metrics": ["COUNTRY", "SUBSIDIARY", "YEAR", "MONTH", "YYYY-WW", "P&L ITEM", "ACT - FCST", "CURRENCY"]
-}
+  "metrics": ["country", "subsidiary", "year", "month", "date_week", "item", "data_type", "amount"]
+}}
+Allowed filters: organic/inorganic, country, subsidiary, year, month, date_week, item, data_type
 
+---
 
-Allowed filters: ORGANIC, COUNTRY, SUBSIDIARY, YEAR, MONTH, YYYY-WW, P&L ITEM, ACT - FCST, CURRENCY
+##Rules:
 
 Temporal logic:
-If user mentions a specific year (e.g. 2024, 2025) → include full year (months 1–12)
 
-“Last month” → previous month
-
-“This month” → current month
-
-“Last week” → latest completed YYYY-WW (e.g. 2025_43)
-
-“This week” → current YYYY-WW
-
-If no time reference → assume most recent available YYYY-WW
+If no time reference → assume current date_week YYYY-WW
+If no year reference → assume current year
+If user mentions WoW → include current and last date_week
+If user mentions YoY or Year-Over-Year → include current and last year
 
 Default behavior:
 
-If user mentions “forecast”, “plan”, or “projection” → ACT - FCST = "Forecast" or "Action Plan"
-
-If user mentions “actual” or “current results” → ACT - FCST = "Actuals"
-
+If user mentions “forecast”, “plan”, or “projection” → data_type = "Forecast" or "Action Plan"
+If user mentions “actual” or “current results” → data_type = "Actuals"
 If user doesn’t mention any type → include all.
-
-If user mentions “Staffing”, “Outsourcing”, etc. → filter by P&L ITEM containing that keyword.
-
 If user mentions a subsidiary (e.g. Jobandtalent, Avanza) → map to SUBSIDIARY filter.
-
 If user mentions a country → map to COUNTRY filter.
-
 If no filters specified → include most recent YEAR and all countries.
-
-Currency logic:
-
-If no mention → default to “EUR”.
-
-Metric inclusion:
-
-If user mentions a financial concept (e.g. Revenue, EBITDA, Gross Profit) → include that P&L ITEM in metrics.
-
-Always include YEAR and MONTH as context metrics.
+Always include country, year, month and item as context metrics.
 
 Response must be deterministic:
-
 Never include free text or explanations — JSON only.
 
-Examples
+---
 
-User: “Show me revenue for Spain in 2025.”
+##Example 1:
+User: “Show me the ebitda for Spain in 2025.”
+Current date_week: 2025_44
+JSON:
+{{
+    "filters": {
+        "country": ["ES"],
+        "year": ["2025"],
+        "item": ["EBITDA"],
+        "date_week" : ["2025_44"]
+    },
+    "metrics": ["country", "year", "month", "date_week", "item", "amount"]
+}}
 
-{
-  "filters": {
-    "COUNTRY": ["ES"],
-    "P&L ITEM": ["Revenues"],
-    "YEAR": ["2025"]
-  },
-  "metrics": ["COUNTRY", "YEAR", "MONTH", "P&L ITEM"]
-}
+##Example 2:
+User: “Show me ebitda WoW for Spain in 2025.”
+Current date_week: 2025_44
+JSON:
+{{
+    "filters": {
+        "country": ["ES"],
+        "year": ["2025"],
+        "item": ["EBITDA"],
+        "date_week" : ["2025_44", "2025_43"]
+    },
+    "metrics": ["country", "year", "month", "date_week", "item", "amount"]
+}}
 
+##Example 3:
+User: “Show me revenue WoW for Spain and united kingdom in 2025.”
+Current date_week: 2025_44
+JSON:
+{{
+    "filters": {
+        "country": ["ES", "UK"],
+        "year": ["2025"],
+        "item": ["Revenue", "Other Revenue", "Revenue_Outsourcing"],
+        "date_week" : ["2025_44", "2025_43"]
+    },
+    "metrics": ["country", "year", "month", "date_week", "item", "amount"]
+}}
+---
 
-User: “Compare actual vs forecast EBITDA for UK subsidiaries this month.”
+##Valid P&L items and synonym mappings (use for matching only):
+Existing Clients, New Clients, Pipeline NB, Other Revenue, Workers Monetisation, Revenues, Productive Payroll Costs, Other Productive Costs, Productive Cost of Labor, Holidays Costs, Sickness Costs, Other Unproductive Costs, Unproductive Cost of Labor, Workers Monetisation Costs, Other (Profits)/Losses, Gross Profit (UK GAAP), Gross Margin (%), HQ Acquisition, Supply Marketing, Indemnisation Costs, Local PPEs Expenses, Local Other Expenses, Demand Marketing, Sales - Hunting, Sales - Account Expansion, Account Support - Cost to Serve, Structure, Marketplace, RevOps and Growth, BPO, Personnel, Office, Utilities & Insurances_DO, Professional Services_DO, IT_DO, Travel expenses_DO, Other expenses_DO, Direct OPEX, Office, Utilities & Insurances_IO, Professional Services_IO, IT_IO, Indirect OPEX, Office, Utilities & Insurances, Professional Services, IT, Travel expenses, Other expenses, OPEX, Operating EBITDA, Op. EBITDA Margin (%), EBITDA, EBITDA Margin (%), EBITDA After Capex, EBITDA After Capex Margin (%), Severance, One-Off Expenses, Amortization (Intangible Assets), - Goodwill, Depreciation (Tangible Assets), D&A, EBIT, EBIT Margin (%), Local Working Capital (invoicing), Securitisation Interest, Debt Interest, Other financial (income)/expense, Financial (Income)/Expenses, Receivables Write-Offs, Tax Penalties, Other Tax, Taxes (Income)/Expenses, Net Income, Net Margin (%), Sales  - Costs K, Rest - Costs K, Total, Sales - FTEs, Rest - FTEs, Sales - Hunting - FTEs, Sales - Account Expansion - FTEs, Recruitment -FTEs, Onsites - FTEs, Demand Incentives, Other Personnel, Travel expenses_IO, Other expenses_IO, - Other intangibles, IT_Intercompany, Existing Clients_outsourcing, New Clients_outsourcing, Pipeline NB_outsourcing, Other Revenue_outsourcing, Revenues_outsourcing, Productive Payroll Costs_outsourcing, Other Productive Costs_outsourcing, Holidays Costs_outsourcing, Sickness Costs_outsourcing, Other Unproductive Costs_outsourcing, Gross Profit (UK GAAP)_outsourcing, Indemnisation Costs_outsourcing, Existing Clients_staffing, New Clients_staffing, Pipeline NB_staffing, Other Revenue_staffing, Workers Monetisation_staffing, Revenues_staffing, Productive Payroll Costs_staffing, Other Productive Costs_staffing, Holidays Costs_staffing, Sickness Costs_staffing, Other Unproductive Costs_staffing, Gross Profit (UK GAAP)_staffing, Pipeline EB, Local Marketing Offline, Requisitions - FTEs, Sales - Avg Cost K, Rest- Avg Cost K, IT_Intercompany_DO, Local Brand, FX (Gain)/Loss, Corporate Tax, Pipeline EB_staffing, Expense Adjustments, - Customer relationships, Commissions, Other Bonus, Bonus, HQ Pers. Finance, HQ Pers. People & Culture, HQ Pers. Leadership & Support, HQ Pers. Brand, HQ Pers. Operations, HQ Pers. International, HQ Pers. Legal, Hq Personnel, HQ OPEX Finance, Hq Opex, Building the new product, Maintenance of the platform, Product Personnel, Product OPEX 1, Product Opex, Additional Income, ESOP COSTS, Advisory Costs, One-Off Expenses ( Corporate), Personnel Sales SaaS, - JT Product Software, CM Securitisation Interest, SPV Transaction Costs, Blackrock Interest, Other deal Costs, Comission one off, Commissions - Farming, Commissions - Hunting, Goodwill, DTLs, Product Personnel One- Offs SaaS, Product Personnel One- Offs AI, Product Personnel One- Offs EWA
 
-{
-  "filters": {
-    "COUNTRY": ["UK"],
-    "P&L ITEM": ["EBITDA"],
-    "ACT - FCST": ["Actuals", "Forecast"],
-    "YYYY-WW": ["2025_11"]
-  },
-  "metrics": ["COUNTRY", "SUBSIDIARY", "P&L ITEM", "ACT - FCST", "YYYY-WW"]
-}
+##Synonym / alias mappings:
+{{
+  "topline": ["Revenues", "Gross Profit (UK GAAP)", "Other Revenue"],
+  "sales": ["Revenues"],
+  "income": ["Revenues", "Net Income"],
+  "revenue": ["Revenues"],
+  "turnover": ["Revenues"],
+  "gross profit": ["Gross Profit (UK GAAP)"],
+  "gross margin": ["Gross Margin (%)"],
+  "bottom line": ["EBITDA", "EBIT", "Net Income"],
+  "profit": ["EBITDA", "EBIT", "Net Income"],
+  "net profit": ["Net Income"],
+  "operating profit": ["EBITDA"],
+  "ebitda": ["EBITDA"],
+  "opex": ["OPEX", "Direct OPEX", "Indirect OPEX"],
+  "costs": ["Productive Payroll Costs", "OPEX", "Personnel"],
+  "payroll": ["Productive Payroll Costs", "Personnel"],
+  "staff cost": ["Personnel", "Productive Payroll Costs"],
+  "personnel cost": ["Personnel"],
+  "salary": ["Personnel"],
+  "marketing": ["Demand Marketing", "Supply Marketing", "Local Marketing Offline"],
+  "sales team": ["Sales - Hunting", "Sales - Account Expansion"],
+  "hunting": ["Sales - Hunting"],
+  "expansion": ["Sales - Account Expansion"],
+  "travel": ["Travel expenses", "Travel expenses_DO", "Travel expenses_IO"],
+  "professional services": ["Professional Services", "Professional Services_DO", "Professional Services_IO"],
+  "it costs": ["IT", "IT_DO", "IT_IO"],
+  "utilities": ["Office, Utilities & Insurances", "Office, Utilities & Insurances_DO", "Office, Utilities & Insurances_IO"],
+  "one off": ["One-Off Expenses", "One-Off Expenses ( Corporate)", "Product Personnel One- Offs SaaS", "Product Personnel One- Offs AI", "Product Personnel One- Offs EWA"],
+  "amortization": ["Amortization (Intangible Assets)", "D&A"],
+  "depreciation": ["Depreciation (Tangible Assets)", "D&A"],
+  "tax": ["Corporate Tax", "Taxes (Income)/Expenses", "Other Tax", "Tax Penalties"],
+  "interest": ["Debt Interest", "Securitisation Interest", "Blackrock Interest", "CM Securitisation Interest"],
+  "financial expenses": ["Financial (Income)/Expenses"],
+  "fx": ["FX (Gain)/Loss"],
+  "esop": ["ESOP COSTS"],
+  "bonus": ["Bonus", "Other Bonus", "Commissions - Farming", "Commissions - Hunting"],
+  "commission": ["Commissions", "Comission one off", "Commissions - Farming", "Commissions - Hunting"],
+  "capex": ["EBITDA After Capex"],
+  "working capital": ["Local Working Capital (invoicing)"],
+  "headquarters": ["HQ Pers. Finance", "HQ Pers. Leadership & Support", "Hq Personnel", "HQ OPEX Finance", "Hq Opex"],
+  "product": ["Product Personnel", "Product OPEX 1", "Product Opex", "Building the new product", "Maintenance of the platform"]
+}}
 
+---
 
-User: “Show all personnel-related costs for Q1 2025 in Europe.”
+##Input:
 
-{
-  "filters": {
-    "COUNTRY": ["ES", "FR", "DE", "BE", "PT", "UK", "SE", "NO"],
-    "P&L ITEM": ["Personnel", "Productive Payroll Costs", "Unproductive Cost of Labor", "Bonus"],
-    "YEAR": ["2025"],
-    "MONTH": [1, 2, 3]
-  },
-  "metrics": ["COUNTRY", "MONTH", "P&L ITEM"]
-}
-
-
-User: “Forecasted gross profit for Avanza in Colombia last week.”
-
-{
-  "filters": {
-    "SUBSIDIARY": ["Avanza"],
-    "COUNTRY": ["CO"],
-    "P&L ITEM": ["Gross Profit (UK GAAP)"],
-    "ACT - FCST": ["Forecast"],
-    "YYYY-WW": ["2025_43"]
-  },
-  "metrics": ["COUNTRY", "SUBSIDIARY", "YYYY-WW", "P&L ITEM", "ACT - FCST"]
-}
-
-Actual user question:
-
+Current Week: "{current_week}"
+User Input:
 "{user_input}"
 
 Respond only with JSON.

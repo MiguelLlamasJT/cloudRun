@@ -1,9 +1,26 @@
-from app import logger
 from rapidfuzz import fuzz, process
-from app.bigQuery import run_query
 import json
+from app.execution_code import run_code_execution
+from app import PROMPTS_PATH, logger
+from app.llms import call_claude_with_prompt, load_prompt
+from app.bigQuery import run_query, build_query
 
-def clientLogic(mentioned, user_question):
+
+def clientLogic(first_response, user_question: str, channel:str, user:str, threadts: str) -> str:
+    mentioned = first_response["clients_mentioned"] or []
+    proceed, user_question = clientSimilar(mentioned, user_question)
+    if (proceed == "no"):
+        return user_question
+    filters_json = call_claude_with_prompt(load_prompt(PROMPTS_PATH + "query_filters.txt", user_input=user_question))
+    logger.debug("🧠 Filters created: %s",json.dumps(filters_json))
+    sql = build_query(filters_json, "jt-prd-financial-pa.random_data.real_data")
+    logger.debug(f"SQL generated:\n{sql}")
+    df = run_query(sql)
+    logger.debug("Shape:", df.shape)
+    output = run_code_execution(user_question, df, channel, user, threadts)
+    return output
+
+def clientSimilar(mentioned, user_question):
     df_clients = get_customer_list()
     all_clients = df_clients["sfdc_name_l3"].dropna().astype(str).tolist()
     if mentioned:

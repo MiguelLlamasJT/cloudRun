@@ -2,7 +2,7 @@ import pandas as pd
 from app import logger, bq_client
 
 
-def build_query(filters: str) -> str:
+def build_query(filters: str, table: str) -> str:
     
     metrics = filters.get("metrics")
     select_metrics = []
@@ -37,7 +37,7 @@ def build_query(filters: str) -> str:
 
     sql = f"""
     SELECT {select_metrics}
-    FROM `jt-prd-financial-pa.random_data.real_data`
+    FROM `{table}`
     WHERE {where_clause}
     GROUP BY {group_by}
     ORDER BY {group_by};
