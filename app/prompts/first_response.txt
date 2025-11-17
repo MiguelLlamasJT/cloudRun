@@ -18,11 +18,11 @@ Rules:
 
 "proceed": "yes" if the message requests data, metrics, or analysis; "no" otherwise.
 
-"tables": ["detailed_topline"] if referring to P&L metrics (e.g. revenues, EBITDA, OPEX, margins, taxes, costs).
+"tables": ["profitAndLoss"] if referring to P&L metrics (e.g. revenues, EBITDA, OPEX, margins, taxes, costs).
 
 "tables": ["detailed_topline"] if referring to clients, accounts, deals, or performance per customer.
 
-"tables": ["detailed_topline", "detailed_topline"] if referring to both tables
+"tables": ["profitAndLoss", "detailed_topline"] if referring to both tables
 
 Maintain previous context if unclear which table applies.
 
