@@ -9,7 +9,7 @@ def process_question(user_question: str, channel:str, user:str, threadts: str) -
     try:
         #logger.debug("User History: %s", user_question)
         first_response = call_claude_with_prompt(
-            load_prompt(PROMPTS_PATH + "first_response.txt", user_input = user_question)
+            load_prompt(PROMPTS_PATH + "first_response_copy.txt", user_input = user_question)
             )
         logger.debug("🧠 Queryable JSON: %s", json.dumps(first_response))
         if (first_response["proceed"] == "no"): ##if (first_response["proceed"] == "no"):
