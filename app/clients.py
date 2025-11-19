@@ -17,7 +17,7 @@ def clientLogic(first_response, user_question: str, channel:str, user:str, threa
         "data_week", "week_label", "sfdc_name_l3", "am_name_l3", "country",
         "service_type_l3", "month", "customer_type", "cohort", "data_type"
     ]
-    sql = build_query(filters_json, "jt-prd-financial-pa.random_data.real_data", allowed_columns)
+    sql = build_query(filters_json, "jt-prd-financial-pa.random_data.detailed_topline", allowed_columns)
     logger.debug(f"SQL generated:\n{sql}")
     df = run_query(sql)
     logger.debug("Shape:", df.shape)
