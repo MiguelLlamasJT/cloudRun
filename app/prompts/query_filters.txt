@@ -13,7 +13,7 @@ Filters are applied to the metrics (columns).
 - am_name_l3 (STRING): account manager name
 - country (STRING): country code (BE (belgium), CO (colombia), DE (germany), ES(spain), FR(france), NO(norway), PT(portugal), SE(sweden), UK(united kingdom), US(united states))
 - service_type_l3 (STRING): service type (Staffing or Outsourcing)
-- source (STRING): Organic or M&A
+- growth_source (STRING): Organic or M&A
 - month (DATE): first day of the month
 - customer_type (STRING): [Existing Business, New Business, pipeline Existing Business, pipeline New Business]
 - revenue (FLOAT)
@@ -144,11 +144,11 @@ JSON:
 {{
   "filters": {{
     "country": "ES",
-    "source": "Organic"
+    "growth_source": "Organic"
     "week_label": ["w-0"],
     "month": ["2025-01-01","2025-02-01","2025-03-01","2025-04-01","2025-05-01","2025-06-01","2025-07-01","2025-08-01","2025-09-01","2025-10-01", "2025-11-01","2025-12-01"]
   }},
-  "metrics" : ["country", "month", "revenue", "source"]
+  "metrics" : ["country", "month", "revenue", "growth_source"]
 }}
 ---
 

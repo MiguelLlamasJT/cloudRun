@@ -7,10 +7,11 @@ from app.bigQuery import run_query, build_query
 
 
 def clientLogic(first_response, user_question: str, channel:str, user:str, threadts: str) -> str:
-    mentioned = first_response["clients_mentioned"] or []
-    proceed, user_question = clientSimilar(mentioned, user_question)
-    if (proceed == "no"):
-        return user_question
+    if first_response["client_related"] == "yes":
+        mentioned = first_response["clients_mentioned"] or []
+        proceed, user_question = clientSimilar(mentioned, user_question)
+        if (proceed == "no"):
+            return user_question
     filters_json = call_claude_with_prompt(load_prompt(PROMPTS_PATH + "query_filters.txt", user_input=user_question))
     logger.debug("🧠 Filters created: %s",json.dumps(filters_json))
     allowed_columns = [
