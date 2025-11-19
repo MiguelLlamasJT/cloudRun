@@ -3,6 +3,8 @@ uvicorn[standard]
 requests
 google-cloud-bigquery
 google-cloud-firestore
+google-api-python-client
+goole-auth
 pandas
 anthropic
 openai

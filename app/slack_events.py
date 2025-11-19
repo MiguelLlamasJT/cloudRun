@@ -2,12 +2,23 @@ import json
 from app.utils_slack.validators import is_valid_message_event, is_authorized_user
 from app.utils_slack.slack_utils import get_thread_history, send_message
 from app.processing import process_question
+from app.g_sheets import create_sheet
 from app import logger
 
 processed_events = set()
 
 def handler(body: dict):
     
+
+    result = create_sheet(
+        "values",
+        filename="P&L Test",
+        share_with_email="miguel.llamas@jobandtalent.com"
+    )
+
+    print("Creado:")
+    print("ID:", result["spreadsheet_id"])
+    print("URL:", result["url"])
     event = body.get("event", {})
     event_id = body.get("event_id")
 
