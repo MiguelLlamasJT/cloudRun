@@ -4,7 +4,7 @@ requests
 google-cloud-bigquery
 google-cloud-firestore
 google-api-python-client
-goole-auth
+google-auth
 pandas
 anthropic
 openai
