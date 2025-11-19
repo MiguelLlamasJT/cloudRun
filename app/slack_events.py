@@ -9,7 +9,7 @@ processed_events = set()
 
 def handler(body: dict):
     
-
+    """
     result = create_sheet(
         "values",
         filename="P&L Test",
@@ -18,7 +18,7 @@ def handler(body: dict):
 
     print("Creado:")
     print("ID:", result["spreadsheet_id"])
-    print("URL:", result["url"])
+    print("URL:", result["url"])"""
     event = body.get("event", {})
     event_id = body.get("event_id")
 
