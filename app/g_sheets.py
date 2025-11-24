@@ -8,7 +8,7 @@ SCOPES = [
 ]
 
 
-def create_sheet(values, filename="P&L generado automáticamente", share_with_email=None):
+def create_sheet(values, filename="P&L generado automáticamente", share_with_email=None, folder_id=None):
     """
     Crea una Google Spreadsheet usando la service account (Cloud Run / ADC),
     escribe los valores en A1 y la comparte con un email opcional.
@@ -32,6 +32,8 @@ def create_sheet(values, filename="P&L generado automáticamente", share_with_em
 
     try:
         drive = build("drive", "v3", credentials=creds)
+        about = drive.about().get(fields="user(displayName,emailAddress,permissionId)").execute()
+        print(about)
         sheets = build("sheets", "v4", credentials=creds)
     except Exception as e:
         raise RuntimeError(f"Error inicializando clientes Drive/Sheets: {str(e)}")
@@ -41,8 +43,8 @@ def create_sheet(values, filename="P&L generado automáticamente", share_with_em
     # ---------------------------------------------------------
     file_metadata = {
         "name": filename,
-        "mimeType": "application/vnd.google-apps.spreadsheet"
-        # No parents -> cae en My Drive de la service account
+        "mimeType": "application/vnd.google-apps.spreadsheet",
+        "parents" : [folder_id]
     }
 
     try:
