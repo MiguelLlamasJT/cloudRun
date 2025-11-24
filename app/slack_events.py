@@ -9,16 +9,6 @@ processed_events = set()
 
 def handler(body: dict):
     
-    """
-    result = create_sheet(
-        "values",
-        filename="P&L Test",
-        share_with_email="miguel.llamas@jobandtalent.com"
-    )
-
-    print("Creado:")
-    print("ID:", result["spreadsheet_id"])
-    print("URL:", result["url"])"""
     event = body.get("event", {})
     event_id = body.get("event_id")
 
@@ -45,6 +35,16 @@ def handler(body: dict):
         logger.debug("Empty message (edited or deleted)")
         return
 
+    if text == "crear hoja":
+        result = create_sheet(
+            "values",
+            filename="P&L Test",
+            share_with_email="miguel.llamas@jobandtalent.com"
+        )
+
+        print("Creado:")
+        print("ID:", result["spreadsheet_id"])
+        print("URL:", result["url"])
     if not is_authorized_user(user):
         logger.warning("Unauthorized user: %s", user)
         send_message(channel, "Under Maintenance.", thread_ts)
