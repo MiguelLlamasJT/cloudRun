@@ -45,13 +45,14 @@ claude = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
 #AUTHORIZED_USERS = ["U06BW8J6MRU", "U031RNA3J86", "U01BECSBLJ1", "U02CYBAR4JY", "U0CGEEKJT"] #miguel, gon, gato, dani, Juan
 AUTHORIZED_USERSS = [
     "miguel.llamas@jobandtalent.com",
-    "gonzalo.rubio@jobandtalent.com",
     "javier.gato@jobandtalent.com",
     "daniel.martin@jobandtalent.com",
     "ivan.camacho@jobandtalent.com",
     "ramon.bernad@jobandtalent.com",
     "pamela.gonzalez@jobandtalent.com",
-    "juan.urdiales@jobandtalent.com"]
+    "juan.urdiales@jobandtalent.com",
+    "gonzalo.rubio@jobandtalent.com"
+    ]
 bq_client = bigquery.Client()
 db = firestore.Client()
 
