@@ -41,7 +41,7 @@ def create_sheet(values, filename="P&L generado automáticamente", share_with_em
     # ---------------------------------------------------------
     # 2. Crear el fichero tipo Google Sheets (en My Drive SA)
     # ---------------------------------------------------------
-    folder_id = "1aZxzxNlvqkn4fXavbfBsvevJyEP_mMsp"
+    folder_id = "0AM7hSqagtuYTUk9PVA"
     file_metadata = {
         "name": filename,
         "mimeType": "application/vnd.google-apps.spreadsheet",
@@ -90,7 +90,7 @@ def create_sheet(values, filename="P&L generado automáticamente", share_with_em
     try:
         sheets.spreadsheets().values().update(
             spreadsheetId=spreadsheet_id,
-            range="Hoja 1!A1",
+            range="Sheet1!A1",
             valueInputOption="RAW",
             body={"values": values}
         ).execute()
