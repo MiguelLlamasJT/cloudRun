@@ -43,9 +43,9 @@ def handler(body: dict):
             share_with_email="miguel.llamas@jobandtalent.com"
         )
 
-        print("Creado:")
-        print("ID:", result["spreadsheet_id"])
-        print("URL:", result["url"])
+        logger.info("Creado:")
+        logger.info("ID:", result["spreadsheet_id"])
+        logger.info("URL:", result["url"])
         send_message(channel, result["url"], thread_ts)
         return
 
