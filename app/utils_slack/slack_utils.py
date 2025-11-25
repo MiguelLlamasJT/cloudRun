@@ -11,6 +11,7 @@ client = WebClient(token=SLACK_BOT_TOKEN)
 
 def get_user_email(user_id: str) -> str | None:
     try:
+        logger.info("user: " + user_id)
         resp = client.users_info(user=user_id)
         profile = resp.get("user", {}).get("profile", {})
         email = profile.get("email")
