@@ -61,42 +61,42 @@ Never include free text or explanations — JSON only.
 
 ##Example 1:
 User: “Show me the ebitda for Spain in 2025.”
-Current date_week: 2025_44
+Current date_week: 2025_XX
 JSON:
 {{
     "filters": {{
         "country": ["ES"],
         "year": ["2025"],
         "item": ["EBITDA"],
-        "date_week" : ["2025_44"]
+        "date_week" : ["2025_XX"]
     }},
     "metrics": ["country", "year", "month", "date_week", "item", "amount"]
 }}
 
 ##Example 2:
 User: “Show me ebitda WoW for Spain in 2025.”
-Current date_week: 2025_44
+Current date_week: 2025_XX
 JSON:
 {{
     "filters": {{
         "country": ["ES"],
         "year": ["2025"],
         "item": ["EBITDA"],
-        "date_week" : ["2025_44", "2025_43"]
+        "date_week" : ["2025_XX", "2025_XX-1"]
     }},
     "metrics": ["country", "year", "month", "date_week", "item", "amount"]
 }}
 
 ##Example 3:
 User: “Show me revenue WoW for Spain and united kingdom in 2025.”
-Current date_week: 2025_44
+Current date_week: 2025_XX
 JSON:
 {{
     "filters": {{
         "country": ["ES", "UK"],
         "year": ["2025"],
         "item": ["Revenue", "Other Revenue", "Revenue_Outsourcing"],
-        "date_week" : ["2025_44", "2025_43"]
+        "date_week" : ["2025_XX", "2025_XX-1"]
     }},
     "metrics": ["country", "year", "month", "date_week", "item", "amount"]
 }}
