@@ -12,8 +12,8 @@ def pnlLogic(user_question: str, channel:str, user:str, threadts: str) -> str:
     allowed_columns = [
         "country", "subsidiary", "year", "month", "date_week", "item", "data_type"
     ]
-    schema = get_table_schema_dict()
-    sql = build_query(filters_json, "jt-prd-financial-pa.random_data.pnl_data", allowed_columns)
+    schema = get_table_schema_dict(table_full_id="jt-prd-financial-pa.random_data.pnl_data", normalizar=True)
+    sql = build_query(filters_json, "jt-prd-financial-pa.random_data.pnl_data", allowed_columns, schema)
     logger.debug(f"SQL generated:\n{sql}")
     df = run_query(sql)
     logger.debug("Shape:", df.shape)

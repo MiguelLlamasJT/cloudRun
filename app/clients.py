@@ -3,7 +3,7 @@ import json
 from app.execution_code import run_code_execution
 from app import PROMPTS_PATH, logger
 from app.llms import call_claude_with_prompt, load_prompt
-from app.bigQuery import run_query, build_query
+from app.bigQuery import run_query, build_query, get_table_schema_dict
 
 
 def clientLogic(first_response, user_question: str, channel:str, user:str, threadts: str) -> str:
@@ -18,7 +18,8 @@ def clientLogic(first_response, user_question: str, channel:str, user:str, threa
         "data_week", "week_label", "sfdc_name_l3", "am_name_l3", "country",
         "service_type_l3", "month", "customer_type", "cohort", "data_type"
     ]
-    sql = build_query(filters_json, "jt-prd-financial-pa.random_data.detailed_topline", allowed_columns)
+    schema = get_table_schema_dict(table_full_id="jt-prd-financial-pa.random_data.detailed_topline", normalizar=True)
+    sql = build_query(filters_json, "jt-prd-financial-pa.random_data.detailed_topline", allowed_columns, schema)
     logger.debug(f"SQL generated:\n{sql}")
     df = run_query(sql)
     logger.debug("Shape:", df.shape)
