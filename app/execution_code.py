@@ -32,7 +32,7 @@ def run_code_execution(prompt: str, df: pd.DataFrame, channel: str, user: str, t
                         file_id = getattr(output, "file_id", None)
                         if file_id:
                             file_ids.append(file_id)
-        print(file_ids)
+        print("File Ids:", file_ids)
         final_ids = []
         for id in file_ids:
             logger.debug(id)
@@ -40,7 +40,7 @@ def run_code_execution(prompt: str, df: pd.DataFrame, channel: str, user: str, t
             data = claude.beta.files.retrieve_metadata(id)
             file_id = uploadFiles(file_response, data.filename)
             final_ids.append({"id": file_id, "title": data.filename})
-
+        logger.debug("archivos subidos")
         logger.debug(response)
 
         text_blocks = [item.text for item in response.content if getattr(item, "type", None) == "text"]
