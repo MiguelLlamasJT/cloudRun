@@ -20,4 +20,6 @@ Google Drive File API:
 - Files: https://developers.google.com/workspace/drive/api/reference/rest/v3/files?hl=es-419#File
 - MimeTypes: https://developers.google.com/workspace/drive/api/guides/mime-types?hl=es-419
 
-G
+GCP BigQuery Client API reference:
+https://docs.cloud.google.com/python/docs/reference/bigquery/latest/summary_method
+https://docs.cloud.google.com/python/docs/reference/bigquery/latest/google.cloud.bigquery.client.Client

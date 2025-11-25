@@ -2,7 +2,7 @@ import pandas as pd
 from app import logger, bq_client
 
 
-def build_query(filters: str, table: str, allowed_columns: list) -> str:
+def build_query(filters: dict, table: str, allowed_columns: list, schema: dict) -> str:
     
     metrics = filters.get("metrics")
     select_metrics = []
@@ -26,8 +26,12 @@ def build_query(filters: str, table: str, allowed_columns: list) -> str:
             continue
         if isinstance(vals, (int, float, str)):
             vals = [vals]
-        if col == "year" and table == "jt-prd-financial-pa.random_data.pnl_data":
-            vals_sql = ", ".join([f"'{v}'" for v in vals])
+        col_type = schema.get(col)
+        if col_type is None:
+            logger.warning("Columna %s no encontrada en schema, ignorando", col)
+            continue
+        if col_type == "int":
+            vals_sql = ", ".join([f"{v}" for v in vals])
         else:
             vals_sql = ", ".join([f"'{v}'" for v in vals])
         where_clauses.append(f"{col} IN ({vals_sql})")
@@ -54,3 +58,30 @@ def run_query(sql: str):
     except Exception as e:
         logger.debug("Error ejecutando query.")
         return pd.DataFrame()
+
+
+def get_table_schema_dict(table_full_id: str, normalizar: bool = False):
+
+    table = bq_client.get_table(table_full_id)
+    type_map = {
+        "INT64": "int",
+        "INTEGER": "int",
+        "FLOAT64": "float",
+        "FLOAT": "float",
+        "NUMERIC": "decimal",
+        "BIGNUMERIC": "decimal",
+        "BOOL": "bool",
+        "BOOLEAN": "bool",
+        "STRING": "string",
+        "DATE": "date",
+        "DATETIME": "datetime",
+    }
+
+    schema_dict = {}
+    for field in table.schema:
+        tipo = field.field_type
+        if normalizar:
+            tipo = type_map.get(tipo, tipo)
+        schema_dict[field.name] = tipo
+
+    return schema_dict

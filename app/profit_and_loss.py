@@ -2,7 +2,7 @@ import json
 from app.execution_code import run_code_execution
 from app import PROMPTS_PATH, logger
 from app.llms import call_claude_with_prompt, load_prompt
-from app.bigQuery import run_query, build_query
+from app.bigQuery import run_query, build_query, get_table_schema_dict
 from datetime import date
 
 def pnlLogic(user_question: str, channel:str, user:str, threadts: str) -> str:
@@ -12,6 +12,7 @@ def pnlLogic(user_question: str, channel:str, user:str, threadts: str) -> str:
     allowed_columns = [
         "country", "subsidiary", "year", "month", "date_week", "item", "data_type"
     ]
+    schema = get_table_schema_dict()
     sql = build_query(filters_json, "jt-prd-financial-pa.random_data.pnl_data", allowed_columns)
     logger.debug(f"SQL generated:\n{sql}")
     df = run_query(sql)
