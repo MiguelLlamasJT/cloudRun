@@ -46,8 +46,11 @@ def handler(body: dict):
         print("Creado:")
         print("ID:", result["spreadsheet_id"])
         print("URL:", result["url"])
+        send_message(channel, result["url"], thread_ts)
+        return
 
-    if not is_authorized_user(user):
+    dev = False
+    if not is_authorized_user(user,dev):
         logger.warning("Unauthorized user: %s", user)
         send_message(channel, "Under Maintenance.", thread_ts)
         return

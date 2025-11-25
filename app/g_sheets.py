@@ -1,6 +1,7 @@
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 import google.auth
+import time
 
 SCOPES = [
     "https://www.googleapis.com/auth/drive",
@@ -64,6 +65,7 @@ def create_sheet(values, filename="P&L generado automáticamente", share_with_em
     # ---------------------------------------------------------
     # 3. Compartir el fichero con el email (si se pidió)
     # ---------------------------------------------------------
+    time.sleep(1)
     if share_with_email:
         try:
             drive.permissions().create(
@@ -73,7 +75,8 @@ def create_sheet(values, filename="P&L generado automáticamente", share_with_em
                     "role": "writer",
                     "emailAddress": share_with_email
                 },
-                fields="id"
+                fields="id",
+                supportsAllDrives=True
             ).execute()
         except HttpError as e:
             raise RuntimeError(
