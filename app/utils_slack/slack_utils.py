@@ -5,10 +5,20 @@ from datetime import datetime
 from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
 from app import logger
-from app import claude
 
 SLACK_BOT_TOKEN = os.environ.get("SLACK_BOT_TOKEN")
 client = WebClient(token=SLACK_BOT_TOKEN)
+
+def get_user_email(user_id: str) -> str | None:
+    try:
+        resp = client.users_info(user=user_id)
+        profile = resp.get("user", {}).get("profile", {})
+        email = profile.get("email")
+        logger.info("Usuario: " + email)
+        return email
+    except SlackApiError as e:
+        logger.warning("Error sacando email")
+        return None
 
 
 def uploadFiles (response, filename) -> str:

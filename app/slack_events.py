@@ -1,6 +1,6 @@
 import json
 from app.utils_slack.validators import is_valid_message_event, is_authorized_user
-from app.utils_slack.slack_utils import get_thread_history, send_message
+from app.utils_slack.slack_utils import get_thread_history, send_message, get_user_email
 from app.processing import process_question
 from app.g_sheets import create_sheet
 from app import logger
@@ -30,6 +30,7 @@ def handler(body: dict):
         event.get("text"),
         event.get("thread_ts") or event.get("ts")
     )
+    user = get_user_email(user)
 
     if not text:
         logger.debug("Empty message (edited or deleted)")
