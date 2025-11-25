@@ -15,3 +15,9 @@ https://docs.claude.com/en/docs/agents-and-tools/tool-use/code-execution-tool
 
 Claude Console (billing, API Keys, etc):
 https://platform.claude.com/dashboard 
+
+Google Drive File API:
+- Files: https://developers.google.com/workspace/drive/api/reference/rest/v3/files?hl=es-419#File
+- MimeTypes: https://developers.google.com/workspace/drive/api/guides/mime-types?hl=es-419
+
+G

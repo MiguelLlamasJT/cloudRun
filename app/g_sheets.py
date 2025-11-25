@@ -41,6 +41,7 @@ def create_sheet(values, filename="P&L generado automáticamente", share_with_em
     # ---------------------------------------------------------
     # 2. Crear el fichero tipo Google Sheets (en My Drive SA)
     # ---------------------------------------------------------
+    folder_id = "1aZxzxNlvqkn4fXavbfBsvevJyEP_mMsp"
     file_metadata = {
         "name": filename,
         "mimeType": "application/vnd.google-apps.spreadsheet",
@@ -50,7 +51,8 @@ def create_sheet(values, filename="P&L generado automáticamente", share_with_em
     try:
         file = drive.files().create(
             body=file_metadata,
-            fields="id"
+            fields="id",
+            supportsAllDrives=True
         ).execute()
 
         spreadsheet_id = file["id"]

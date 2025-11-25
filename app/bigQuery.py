@@ -49,6 +49,7 @@ def run_query(sql: str):
     #current_tries = 0
     try:
         query_job = bq_client.query(sql)
+        print(query_job)
         return query_job.to_dataframe()
     except Exception as e:
         logger.debug("Error ejecutando query.")
