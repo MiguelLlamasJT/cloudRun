@@ -50,8 +50,10 @@ AUTHORIZED_USERSS = [
     "ivan.camacho@jobandtalent.com",
     "ramon.bernad@jobandtalent.com",
     "pamela.gonzalez@jobandtalent.com",
+    "maria.gonzalbez@jobandtalent.com",
     "juan.urdiales@jobandtalent.com",
-    "gonzalo.rubio@jobandtalent.com"
+    "gonzalo.rubio@jobandtalent.com",
+    "victoria.delpozo@jobandtalent.com"
     ]
 bq_client = bigquery.Client()
 db = firestore.Client()

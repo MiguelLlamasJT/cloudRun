@@ -13,5 +13,3 @@ async def slack_events(req: Request, background_tasks: BackgroundTasks):
     background_tasks.add_task(handler, body)
     return {"ok": True}
 
-
-
