@@ -42,7 +42,7 @@ for noisy_logger in [
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
 PROMPTS_PATH = "/app/app/prompts/"
 claude = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
-AUTHORIZED_USERS = ["U06BW8J6MRU", "U031RNA3J86", "U01BECSBLJ1", "U02CYBAR4JY", "U0CGEEKJT"] #miguel, gon, gato, dani, Juan
+AUTHORIZED_USERS = ["U06BW8J6MRU", "U031RNA3J86", "U01BECSBLJ1", "U02CYBAR4JY", "U0CGEEKJT", "U07BE0ZJ7"] #miguel, Gon, Gato, Dani, Juan, Mike
 bq_client = bigquery.Client()
 db = firestore.Client()
 
